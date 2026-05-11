@@ -144,25 +144,13 @@ nav {
 
 /* ─── Hero ─── */
 .hero {
-  position: relative; overflow: hidden;
   padding: 170px 0 130px;
   background: var(--accent);
   text-align: center;
 }
-.hero::before {
-  content: 'KELLY';
-  position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: clamp(140px, 22vw, 320px);
-  font-weight: 900; letter-spacing: .04em;
-  color: rgba(255,255,255,.05);
-  white-space: nowrap; pointer-events: none;
-  user-select: none; z-index: 0;
-}
-.hero .wrap { position: relative; z-index: 1; }
 .hero-brand {
-  font-size: 14px; font-weight: 600; letter-spacing: .18em;
-  text-transform: uppercase; color: rgba(255,255,255,.45);
+  font-size: 18px; font-weight: 700; letter-spacing: -.01em;
+  color: rgba(255,255,255,.5);
   margin-bottom: 28px;
 }
 .hero-h1 {
@@ -486,7 +474,7 @@ footer {
 <!-- ── Hero ── -->
 <section class="hero">
   <div class="wrap">
-    <div class="hero-brand">Kelly</div>
+    <div class="hero-brand">Kelly.</div>
     <h1 class="hero-h1" data-i18n="hero_h1" data-i18n-html="1">Where solo<br><em>becomes a team</em></h1>
     <p class="hero-sub" data-i18n="hero_sub">Kelly gives you a team of AI specialists. They take your tasks, collaborate, and deliver results — from idea to done. One app, your Mac.</p>
     <div class="hero-actions">
