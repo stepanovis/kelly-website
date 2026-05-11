@@ -143,40 +143,35 @@ nav {
 
 /* ─── Hero ─── */
 .hero {
-  padding: 130px 0 96px;
-  background: var(--bg); text-align: center;
+  padding: 160px 0 120px;
+  background: linear-gradient(180deg, var(--bg) 0%, #F5EDE5 100%);
+  text-align: center;
 }
-.hero-badge {
-  display: inline-flex; align-items: center; gap: 7px;
-  background: var(--white); border: 1px solid var(--border);
-  border-radius: 50px; padding: 6px 14px;
-  font-size: 13px; color: var(--text-2);
-  margin-bottom: 32px; box-shadow: var(--sh-sm);
-}
-.hero-badge::before {
-  content: ''; width: 7px; height: 7px;
-  border-radius: 50%; background: var(--burgundy); flex-shrink: 0;
+.hero-brand {
+  font-size: 15px; font-weight: 700; letter-spacing: .15em;
+  text-transform: uppercase; color: var(--burgundy);
+  margin-bottom: 28px;
 }
 .hero-h1 {
-  font-size: clamp(42px, 7vw, 78px);
-  font-weight: 800; line-height: 1.05; letter-spacing: -.04em;
-  max-width: 840px; margin: 0 auto 24px;
+  font-size: clamp(52px, 9vw, 100px);
+  font-weight: 800; line-height: 1.02; letter-spacing: -.045em;
+  max-width: 900px; margin: 0 auto 28px;
 }
 .hero-h1 em { font-style: normal; color: var(--burgundy); }
 .hero-sub {
-  font-size: 20px; line-height: 1.55; color: var(--text-2);
-  max-width: 560px; margin: 0 auto 48px;
+  font-size: 21px; line-height: 1.6; color: var(--text-2);
+  max-width: 540px; margin: 0 auto 52px;
 }
 .hero-actions {
   display: flex; align-items: center;
-  justify-content: center; gap: 14px;
-  flex-wrap: wrap; margin-bottom: 16px;
+  justify-content: center; gap: 16px;
+  flex-wrap: wrap; margin-bottom: 18px;
 }
 .hero-note { font-size: 13px; color: var(--text-3); }
 
-/* Hero agent mockup */
+/* Agent mockup */
 .hero-visual {
-  margin: 64px auto 0; max-width: 860px;
+  margin: 48px auto 0; max-width: 860px;
   background: var(--white); border: 1px solid var(--border);
   border-radius: var(--r-lg); padding: 28px 28px 28px;
   box-shadow: var(--sh-lg);
@@ -473,43 +468,14 @@ footer {
 <!-- ── Hero ── -->
 <section class="hero">
   <div class="wrap">
-    <div class="hero-badge" data-i18n="hero_badge">macOS desktop app &nbsp;&middot;&nbsp; Free trial</div>
+    <div class="hero-brand">Kelly</div>
     <h1 class="hero-h1" data-i18n="hero_h1" data-i18n-html="1">Where solo<br><em>becomes a team</em></h1>
     <p class="hero-sub" data-i18n="hero_sub">Kelly gives you a team of AI specialists. They take your tasks, collaborate, and deliver results — from idea to done. One app, your Mac.</p>
     <div class="hero-actions">
       <a href="https://github.com/stepanovis/kelly-website/releases/download/v2.1.3/Kelly-2.1.3-arm64.dmg" class="btn btn-primary btn-lg" data-i18n="cta">Download free</a>
       <a href="#how" class="btn btn-secondary btn-lg" data-i18n="hero_cta2">See how it works ↓</a>
     </div>
-    <p class="hero-note" data-i18n="hero_note">No credit card required &nbsp;&middot;&nbsp; Your data stays on your machine</p>
-
-    <div class="hero-visual" aria-hidden="true">
-      <div class="hero-visual-bar">
-        <span class="dot dot-r"></span>
-        <span class="dot dot-y"></span>
-        <span class="dot dot-g"></span>
-        <span class="hero-visual-title" data-i18n="hero_visual_title">Kelly — Project: New Product Launch</span>
-      </div>
-      <div class="agent-cards">
-        <div class="agent-card">
-          <div class="agent-role" data-i18n="role_dev">Developer</div>
-          <div class="agent-name">Alex</div>
-          <div class="agent-status" data-i18n="status_working">Working</div>
-          <div class="agent-task" data-i18n="task_dev">Implementing auth module and writing unit tests…</div>
-        </div>
-        <div class="agent-card">
-          <div class="agent-role" data-i18n="role_analyst">Analyst</div>
-          <div class="agent-name">Irina</div>
-          <div class="agent-status" data-i18n="status_working">Working</div>
-          <div class="agent-task" data-i18n="task_analyst">Analyzing competitor pricing data and summarizing…</div>
-        </div>
-        <div class="agent-card">
-          <div class="agent-role" data-i18n="role_designer">Designer</div>
-          <div class="agent-name">Maya</div>
-          <div class="agent-status" data-i18n="status_review">Review ready</div>
-          <div class="agent-task" data-i18n="task_designer">Design system tokens complete. Awaiting review.</div>
-        </div>
-      </div>
-    </div>
+    <p class="hero-note" data-i18n="hero_note">No credit card required &nbsp;&middot;&nbsp; macOS &nbsp;&middot;&nbsp; Your data stays on your machine</p>
   </div>
 </section>
 
@@ -554,6 +520,35 @@ footer {
       <span class="eyebrow" data-i18n="how_eyebrow">How Kelly works</span>
       <h2 class="section-title" data-i18n="how_title">Meet your AI office</h2>
       <p class="section-sub" style="max-width:500px;margin:0 auto;" data-i18n="how_sub">You're the manager. The agents are your team. They work — you review.</p>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="hero-visual-bar">
+        <span class="dot dot-r"></span>
+        <span class="dot dot-y"></span>
+        <span class="dot dot-g"></span>
+        <span class="hero-visual-title" data-i18n="hero_visual_title">Kelly — Project: New Product Launch</span>
+      </div>
+      <div class="agent-cards">
+        <div class="agent-card">
+          <div class="agent-role" data-i18n="role_dev">Developer</div>
+          <div class="agent-name">Alex</div>
+          <div class="agent-status" data-i18n="status_working">Working</div>
+          <div class="agent-task" data-i18n="task_dev">Implementing auth module and writing unit tests…</div>
+        </div>
+        <div class="agent-card">
+          <div class="agent-role" data-i18n="role_analyst">Analyst</div>
+          <div class="agent-name">Irina</div>
+          <div class="agent-status" data-i18n="status_working">Working</div>
+          <div class="agent-task" data-i18n="task_analyst">Analyzing competitor pricing data and summarizing…</div>
+        </div>
+        <div class="agent-card">
+          <div class="agent-role" data-i18n="role_designer">Designer</div>
+          <div class="agent-name">Maya</div>
+          <div class="agent-status" data-i18n="status_review">Review ready</div>
+          <div class="agent-task" data-i18n="task_designer">Design system tokens complete. Awaiting review.</div>
+        </div>
+      </div>
     </div>
 
     <div class="steps">
