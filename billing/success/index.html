@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kelly — Оплата прошла</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#F5EFEC; --ink:#2A1622; --ink-2:#5A4650; --ink-3:#93828B; --accent:#BD5E35; --line:#DDCEC6;
+  --serif:'Newsreader',Georgia,'Times New Roman',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Helvetica,Arial,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px;-webkit-font-smoothing:antialiased;}
+.card{max-width:34rem;text-align:center;}
+.kicker{font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);}
+h1{font-family:var(--serif);font-weight:500;font-size:clamp(34px,5vw,52px);line-height:1.05;margin-top:18px;}
+p{font-family:var(--serif);font-size:clamp(18px,2.2vw,22px);line-height:1.6;color:var(--ink-2);margin-top:20px;max-width:30ch;margin-left:auto;margin-right:auto;}
+.note{font-family:var(--sans);font-size:14px;color:var(--ink-3);margin-top:14px;}
+.home{display:inline-block;margin-top:32px;font-size:14px;font-weight:600;color:var(--ink);text-decoration:none;border-bottom:2px solid var(--accent);padding-bottom:2px;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="kicker">Kelly</div>
+  <h1>Оплата прошла</h1>
+  <p>Подписка <strong>Pro</strong> активирована. Вернитесь в приложение Kelly — план обновится автоматически.</p>
+  <div class="note">Payment successful. You can return to Kelly — your plan updates automatically.</div>
+  <a class="home" href="/">← На главную</a>
+</div>
+</body>
+</html>
