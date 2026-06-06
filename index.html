@@ -84,6 +84,12 @@ nav {
 .lang-dock {
   position: fixed; top: 28px; right: 32px; z-index: 60;
 }
+/* Scroll progress — orange line, vertically centred on the language toggle */
+#scrollProgress {
+  position: fixed; top: 40px; left: 0; height: 2px; width: 0;
+  background: var(--accent); z-index: 55;
+  transition: width .08s linear; pointer-events: none;
+}
 .lang-btn {
   font-family: var(--sans); font-size: 13px; font-weight: 600;
   letter-spacing: .06em; color: var(--paper);
@@ -226,6 +232,8 @@ nav {
 </style>
 </head>
 <body>
+
+<div id="scrollProgress"></div>
 
 <div class="lang-dock" id="langDock">
   <button class="lang-btn" id="langBtn">EN</button>
@@ -382,6 +390,20 @@ document.querySelectorAll('.lang-opt').forEach(function(btn) {
 (function() {
   var saved; try { saved = localStorage.getItem('kelly-lang'); } catch(e) {}
   if (saved && T[saved]) setLang(saved);
+})();
+
+// Scroll progress bar
+(function() {
+  var bar = document.getElementById('scrollProgress');
+  function update() {
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    var pct = max > 0 ? (h.scrollTop || document.body.scrollTop) / max * 100 : 0;
+    bar.style.width = pct + '%';
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  update();
 })();
 </script>
 </html>
