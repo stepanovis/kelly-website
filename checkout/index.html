@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kelly — Оформление подписки</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#F5EFEC; --ink:#2A1622; --ink-2:#5A4650; --ink-3:#93828B; --accent:#BD5E35; --line:#DDCEC6;
+  --serif:'Newsreader',Georgia,'Times New Roman',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Helvetica,Arial,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px;-webkit-font-smoothing:antialiased;}
+.card{max-width:34rem;text-align:center;}
+.kicker{font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);}
+h1{font-family:var(--serif);font-weight:500;font-size:clamp(30px,4.5vw,46px);line-height:1.05;margin-top:18px;}
+p{font-family:var(--serif);font-size:clamp(17px,2.1vw,21px);line-height:1.6;color:var(--ink-2);margin-top:20px;max-width:34ch;margin-left:auto;margin-right:auto;}
+.note{font-family:var(--sans);font-size:14px;color:var(--ink-3);margin-top:14px;}
+.spinner{width:30px;height:30px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;margin:28px auto 0;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.btn{display:inline-block;margin-top:28px;font-size:15px;font-weight:600;color:#fff;background:var(--accent);text-decoration:none;padding:12px 24px;border-radius:10px;border:none;cursor:pointer;font-family:var(--sans);}
+.home{display:inline-block;margin-top:24px;font-size:14px;font-weight:600;color:var(--ink);text-decoration:none;border-bottom:2px solid var(--accent);padding-bottom:2px;}
+.hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="kicker">Kelly</div>
+
+  <div id="loading">
+    <h1>Открываем оплату</h1>
+    <p>Сейчас откроется защищённая форма оплаты Paddle. Если она не появилась — нажмите кнопку ниже.</p>
+    <div class="spinner"></div>
+    <div>
+      <button id="open-btn" class="btn hidden" type="button">Открыть форму оплаты</button>
+    </div>
+  </div>
+
+  <div id="error" class="hidden">
+    <h1>Не удалось открыть оплату</h1>
+    <p id="error-text">Ссылка на оплату недействительна или устарела. Вернитесь в приложение Kelly и попробуйте снова.</p>
+    <div class="note">Could not open checkout. Please return to Kelly and try again.</div>
+    <a class="home" href="/">← На главную</a>
+  </div>
+</div>
+
+<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+<script>
+(function () {
+  var PADDLE_CLIENT_TOKEN = 'live_23af54327db2ea15c06ac5514a4';
+
+  function showError(msg) {
+    document.getElementById('loading').classList.add('hidden');
+    var e = document.getElementById('error');
+    if (msg) document.getElementById('error-text').textContent = msg;
+    e.classList.remove('hidden');
+  }
+
+  var params = new URLSearchParams(window.location.search);
+  var txnId = params.get('_ptxn');
+  if (!txnId) { showError('Ссылка на оплату не содержит идентификатор транзакции. Вернитесь в приложение Kelly и попробуйте снова.'); return; }
+
+  if (typeof Paddle === 'undefined') { showError('Не удалось загрузить платёжный модуль. Проверьте подключение к интернету и обновите страницу.'); return; }
+
+  function openCheckout() {
+    Paddle.Checkout.open({
+      transactionId: txnId,
+      settings: {
+        displayMode: 'overlay',
+        theme: 'light',
+        locale: 'ru',
+        successUrl: 'https://klly.works/billing/success'
+      }
+    });
+  }
+
+  try {
+    Paddle.Initialize({
+      token: PADDLE_CLIENT_TOKEN,
+      eventCallback: function (data) {
+        if (data && data.name === 'checkout.closed') {
+          // Пользователь закрыл оверлей — показываем кнопку повторного открытия.
+          var btn = document.getElementById('open-btn');
+          if (btn) btn.classList.remove('hidden');
+        }
+      }
+    });
+    openCheckout();
+    // Подстраховка: если оверлей по какой-то причине не открылся автоматически, показать кнопку.
+    setTimeout(function () {
+      var btn = document.getElementById('open-btn');
+      if (btn) btn.classList.remove('hidden');
+    }, 4000);
+    document.getElementById('open-btn').addEventListener('click', openCheckout);
+  } catch (err) {
+    showError('Не удалось открыть форму оплаты. Вернитесь в приложение Kelly и попробуйте снова.');
+  }
+})();
+</script>
+</body>
+</html>
