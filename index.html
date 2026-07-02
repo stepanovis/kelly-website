@@ -1,409 +1,872 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kelly — your projects, tasks and an AI agent team in one place</title>
-<meta name="description" content="Kelly is a Mac app with all your projects, tasks and context — plus an AI agent team — in one place. Where solo becomes a team.">
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<title>Kelly — один человек. Целая команда.</title>
+<meta name="description" content="Kelly — десктопное приложение для Mac с ИИ-агентами, которые работают вместе как команда: чат, задачи, база знаний в одном месте.">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@600;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:      #F5EFEC;
-  --paper:   #FBF7F4;
-  --ink:     #2A1622;
-  --ink-2:   #5A4650;
-  --ink-3:   #93828B;
-  --accent:  #BD5E35;
-  --line:    #DDCEC6;
-  --serif:   'Newsreader', Georgia, 'Times New Roman', serif;
-  --sans:    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif;
+:root{
+  --terra:#BD5E35;--terra-dp:#9A4827;--terra-dk:#7E371F;
+  --signal-orange:#F2540A; /* фирменный сигнальный оранжевый из tokens.css продукта (--color-signal-orange) */
+  --cream:#FBF7F4;--bg:#F5EFEC;--ink:#2A1622;--ink-2:#5A4650;--ink-3:#93828B;--line:#E0D3CB;
+  --deep:#1E0F18;--deep-2:#2E1C28;
+  --violet:oklch(0.28 0.11 322); /* баклажан — тёмный, держит контраст на терракоте (светлый Violet и фирменный signal-orange #F2540A на терракоте теряются) */
+  --w:#FFFFFF;--w-soft:rgba(255,255,255,.78);--w-line:rgba(255,255,255,.22);
+  --disp:'Golos Text',-apple-system,sans-serif;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
 }
-* , *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body {
-  font-family: var(--sans);
-  background: var(--bg);
-  color: var(--ink);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-.wrap { max-width: 1180px; margin: 0 auto; padding: 0 48px; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:hidden}
+.wrap{max-width:1240px;margin:0 auto;padding:0 40px;width:100%}
+.aud{display:none}
+body[data-mode="solo"] .aud.solo{display:block}
+body[data-mode="team"] .aud.team{display:block}
+.aud.solo,.aud.team{animation:fade .35s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.mono{font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.disp{font-family:var(--disp)}
 
-/* ── Nav ── */
-nav {
-  position: sticky; top: 0; z-index: 50;
-  background: rgba(245,239,236,.82);
-  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-  border-bottom: 1px solid var(--line);
-}
-.nav-in { display: flex; align-items: center; justify-content: space-between; height: 64px; }
-.logo { font-family: var(--serif); font-weight: 600; font-size: 24px; letter-spacing: -.01em; color: var(--ink); text-decoration: none; }
-.logo span { color: var(--accent); }
-.nav-cta { font-size: 14px; font-weight: 600; color: var(--ink); text-decoration: none; border-bottom: 2px solid var(--accent); padding-bottom: 2px; }
+/* ── Поверхности секций ── */
+.s-terra{background:var(--terra);color:var(--w)}
+.s-cream{background:var(--cream);color:var(--ink)}
+.s-bg{background:var(--signal-orange);color:var(--ink)}
+.s-dark{background:var(--deep);color:var(--cream)}
+section{padding:108px 0}
 
-/* ── Hero ── */
-.hero-prose {
-  font-family: var(--serif);
-  font-size: clamp(20px, 2.4vw, 30px);
-  line-height: 1.6;
-  color: var(--ink);
-  max-width: 38.4ch;
-  font-weight: 400;
-}
-.hero-prose .tc { color: var(--accent); font-style: normal; }
-.hero-prose em { font-style: italic; color: var(--ink-2); }
-.kicker { font-family: var(--sans); font-size: 12px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
-.hero h1 {
-  font-family: var(--serif); font-weight: 500;
-  font-size: clamp(34px, 4.6vw, 60px); line-height: 1;
-  letter-spacing: -.03em; margin: 0; white-space: nowrap;
-}
-.hero h1 em { font-style: italic; color: var(--ink-2); font-weight: 400; }
-.hero-sub {
-  font-family: var(--sans); font-size: 20px; line-height: 1.6;
-  color: var(--ink-2); max-width: 50ch; margin: 34px 0 0;
-}
-.hero-actions { display: flex; align-items: center; gap: 28px; margin-top: 44px; flex-wrap: wrap; }
-.btn {
-  font-family: var(--sans); font-size: 16px; font-weight: 600;
-  padding: 15px 30px; border-radius: 2px; text-decoration: none;
-  background: var(--ink); color: var(--paper);
-  border: 1px solid var(--ink); transition: background .18s, color .18s;
-}
-.btn:hover { background: var(--accent); border-color: var(--accent); }
-.link {
-  font-family: var(--sans); font-size: 16px; font-weight: 600; color: var(--ink);
-  text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
-}
-.link span { border-bottom: 2px solid var(--accent); padding-bottom: 2px; }
+/* ── Кнопки ── */
+.btn{font-family:var(--sans);font-size:15px;font-weight:600;padding:11px 26px;border-radius:999px;text-decoration:none;display:inline-flex;align-items:center;gap:9px;cursor:pointer;border:1px solid transparent;transition:background .15s,color .15s,border-color .15s,transform .05s}
+.btn:active{transform:translateY(1px)}
+.btn-ink{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.btn-ink:hover{background:var(--terra);border-color:var(--terra);color:#fff}
+.btn-terra{background:var(--terra);color:#fff;border-color:var(--terra)}
+.btn-terra:hover{background:var(--terra-dp);border-color:var(--terra-dp)}
+.btn-cream{background:var(--violet);color:var(--cream);border-color:var(--violet)}
+.btn-cream:hover{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.btn-line-w{background:transparent;color:var(--w);border-color:transparent}
+.btn-line-w:hover{background:rgba(255,255,255,.08)}
+.btn-line-ink{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn-line-ink:hover{border-color:var(--ink)}
 
-/* ── Language dock ── */
-.lang-dock {
-  position: fixed; top: 28px; right: 32px; z-index: 60;
-}
-/* Scroll progress — orange line, vertically centred on the language toggle */
-#scrollProgress {
-  position: fixed; top: 40px; left: 0; height: 2px; width: 0;
-  background: var(--accent); z-index: 55;
-  transition: width .08s linear; pointer-events: none;
-}
-.lang-btn {
-  font-family: var(--sans); font-size: 13px; font-weight: 600;
-  letter-spacing: .06em; color: var(--paper);
-  background: var(--accent); border: none; cursor: pointer;
-  padding: 5px 12px; border-radius: 2px;
-  transition: background .18s;
-}
-.lang-btn:hover { background: var(--ink); }
-.lang-menu {
-  display: none; position: absolute; top: calc(100% + 6px); right: 0;
-  background: var(--paper); border: 1px solid var(--line);
-  border-radius: 2px; overflow: hidden; min-width: 64px;
-  box-shadow: 0 4px 16px rgba(42,22,34,.1);
-}
-.lang-dock.open .lang-menu { display: block; }
-.lang-opt {
-  display: block; width: 100%; padding: 8px 14px;
-  font-family: var(--sans); font-size: 12px; font-weight: 600;
-  letter-spacing: .06em; text-align: left; background: none;
-  border: none; cursor: pointer; color: var(--ink-2);
-  transition: background .12s;
-}
-.lang-opt.active { color: var(--accent); }
-.lang-opt:hover { background: var(--bg-alt); color: var(--ink); }
-.dock {
-  position: fixed; right: 32px; bottom: 28px; z-index: 60;
-  font-family: var(--sans); font-size: 13px; font-weight: 600;
-  letter-spacing: .06em; color: var(--paper); text-decoration: none;
-  background: var(--accent); padding: 5px 12px; border-radius: 2px;
-  transition: background .18s;
-}
-.dock:hover { background: var(--ink); }
+/* ── Заголовки секций ── */
+.eyebrow{display:block;margin-bottom:18px}
+.title{font-family:var(--disp);font-weight:800;font-size:clamp(34px,4.6vw,66px);line-height:.96;letter-spacing:-.03em;text-transform:uppercase}
+.kelly-peak{font-family:var(--disp);font-weight:900;font-size:clamp(52px,9vw,120px);letter-spacing:-.03em;line-height:.9;color:var(--signal-orange)}
+.mountain{display:flex;flex-direction:column;align-items:flex-start;gap:.35em;margin:44px 0 0}
+.enough{font-family:var(--disp);font-weight:900;font-size:clamp(44px,7vw,90px);line-height:.95;color:var(--signal-orange);margin-top:44px}
+.mountain .mrow{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:.3em .7em}
+.stk{font-family:var(--disp);font-weight:800;font-size:clamp(23px,3.2vw,42px);color:var(--ink-3);text-decoration:line-through;text-decoration-color:var(--violet);text-decoration-thickness:.07em}
+.title .tint{color:var(--terra)}
+.s-terra .title .tint,.s-dark .title .tint,.s-bg .title .tint{color:var(--cream)}
+.s-cream .eyebrow{color:var(--terra)}
+.s-bg .eyebrow{color:var(--ink)}
+.s-terra .eyebrow,.s-dark .eyebrow{color:var(--w-soft)}
+.lede{font-size:19px;line-height:1.6;color:var(--ink-2);max-width:54ch;margin-top:22px}
+.s-terra .lede{color:var(--w)}.s-dark .lede{color:#C9B9C1}
+.sec-head{max-width:62ch}
+.sec-head.wide{max-width:none}
+.sec-head.center{margin:0 auto;text-align:center}
 
-/* ── Editorial section ── */
-.ed {
-  display: flex; align-items: stretch;
-  min-height: 88vh;
-}
-.ed-label {
-  flex: 0 0 auto; display: flex; gap: clamp(8px, 1.6vw, 28px);
-  align-items: center; justify-content: center;
-  padding: 70px clamp(40px, 6vw, 96px);
-  overflow: hidden;
-}
-.ed-label .word {
-  writing-mode: vertical-rl; text-orientation: upright;
-  font-family: var(--serif); font-weight: 600; text-transform: uppercase;
-  font-size: clamp(44px, 9vh, 96px); line-height: 1.04;
-  letter-spacing: 0; color: var(--ink);
-}
-.ed-label .word.tint { color: var(--accent); }
+/* ════ NAV ════ */
+nav{position:sticky;top:0;z-index:60;background:var(--signal-orange);border-bottom:1px solid var(--w-line)}
+.nav-in{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:70px;gap:18px}
+.nav-in>.logo{justify-self:start}
+.nav-in>.tgl{justify-self:center}
+.nav-in>.nav-right{justify-self:end;display:flex;align-items:center;gap:14px}
+.logo{font-family:var(--disp);font-weight:900;font-size:27px;letter-spacing:-.02em;color:var(--w);text-decoration:none}
+.logo i{font-style:normal;color:var(--violet)}
+.tgl{display:inline-flex;background:#262626;border-radius:999px;padding:3px;gap:2px;box-shadow:inset 0 2px 5px rgba(0,0,0,.35),inset 0 -1px 1px rgba(255,255,255,.06)}
+.tgl button{font-family:var(--sans);font-size:14px;font-weight:600;color:var(--w-soft);background:transparent;border:none;cursor:pointer;padding:9px 22px;border-radius:999px;transition:color .15s,background .15s,box-shadow .15s}
+.tgl button.on{background:var(--cream);color:var(--ink);box-shadow:0 2px 6px rgba(0,0,0,.25),0 1px 2px rgba(0,0,0,.15)}
+.tgl button:not(.on):hover{color:var(--w)}
+.tgl.sm button{padding:7px 15px;font-size:12px}
+.nav-dl{font-family:var(--sans);font-size:15px;font-weight:600;color:var(--cream);background:var(--violet);padding:11px 26px;border-radius:999px;text-decoration:none;transition:opacity .15s}
+.nav-dl:hover{opacity:.85}
 
-.ed-body {
-  flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center;
-  padding: 90px 210px 90px 64px; min-width: 0;
-}
-.ed-body .kicker { display: block; margin-bottom: 22px; }
-.ed-head {
-  font-family: var(--serif); font-weight: 500;
-  font-size: clamp(32px, 4vw, 58px); line-height: 1.02;
-  letter-spacing: -.025em; color: var(--ink); max-width: 18ch;
-}
-.ed-head em { font-style: italic; color: var(--accent); font-weight: 400; }
-.ed-lede {
-  font-size: 19px; line-height: 1.6; color: var(--ink-2);
-  max-width: 46ch; margin-top: 22px;
-}
+/* ════ HERO ════ */
+.hero{padding:96px 0 0;text-align:left;background:var(--signal-orange)}
+.hero .head{font-family:var(--disp);font-weight:900;font-size:clamp(54px,9vw,140px);line-height:.86;letter-spacing:-.04em;text-transform:uppercase}
+/* выключка двух строк по одной ширине */
+.fit{display:block;max-width:880px}
+.fit .line{display:block;white-space:nowrap;font-family:var(--disp);font-weight:900;line-height:.9;letter-spacing:-.04em;text-transform:uppercase;font-size:clamp(54px,9vw,120px)}
+.fit .line.vio{color:var(--ink)}
+.fit .line.rot .crs{display:inline-block;margin-left:.04em;color:var(--ink);animation:blink 1s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.fit .line.rot .crs{animation:none}}
+.hero .lead{font-size:clamp(18px,1.6vw,22px);line-height:1.5;color:var(--w);max-width:46ch;margin:28px 0 0;font-weight:400}
+.hero .lead b{font-weight:600}
+.flag{display:inline-block;background:var(--cream);color:var(--ink);font-weight:600;font-size:clamp(16px,1.5vw,19px);padding:8px 16px;margin-top:24px;border-radius:3px}
+.hero .actions{display:flex;gap:14px;justify-content:flex-start;margin-top:34px;flex-wrap:wrap}
+.hero-eyebrow{color:var(--w-soft);margin-bottom:24px}
+.facts{margin-top:74px;background:var(--ink)}
+.facts-clip{overflow:hidden}
+.facts .track{display:flex;align-items:center;width:max-content;padding:16px 0;will-change:transform}
+.facts .grp{display:flex;align-items:center;flex:none;white-space:nowrap}
+.facts .f{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--w-soft);flex:none}
+.facts .f b{color:var(--w);font-weight:700}
+.facts .sep{color:var(--w-line);padding:0 18px;flex:none}
 
-/* numbered editorial list */
-.items { margin-top: 52px; max-width: 620px; }
-.item {
-  display: grid; grid-template-columns: auto 1fr; gap: 28px;
-  padding: 26px 0; border-top: 1px solid var(--line);
-}
-.item:last-child { border-bottom: 1px solid var(--line); }
-.item .n {
-  font-family: var(--serif); font-weight: 500; font-style: italic;
-  font-size: clamp(26px, 3vw, 38px); color: var(--accent);
-  line-height: 1; font-variant-numeric: tabular-nums; padding-top: 4px;
-}
-.item h3 {
-  font-family: var(--serif); font-weight: 600;
-  font-size: clamp(21px, 2.2vw, 27px); line-height: 1.15;
-  letter-spacing: -.01em; color: var(--ink);
-}
-.item p { font-family: var(--sans); font-size: 16px; line-height: 1.6; color: var(--ink-2); margin-top: 8px; max-width: 50ch; }
-.items.nonum .item { grid-template-columns: 1fr; }
+/* ════ ПРОБЛЕМА ════ */
+.chaos{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:50px}
+.chaos .c{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:22px}
+.chaos .c .k{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--terra);margin-bottom:10px}
+.chaos .c p{font-size:15px;line-height:1.5;color:var(--ink-2)}
+.resolve{margin-top:42px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.resolve .arr{font-family:var(--disp);font-weight:800;font-size:34px;color:var(--terra)}
+.resolve .rt{font-family:var(--disp);font-weight:800;font-size:clamp(22px,2.6vw,34px);text-transform:uppercase;letter-spacing:-.02em;line-height:1.05}
+.resolve .rt .tint{color:var(--terra)}
 
-/* ── App mock ── */
-.app-mock-section { padding: 72px 64px; max-width: 940px; margin: 0 auto; }
-.app-mock-label { font-family: var(--serif); font-weight: 600; text-transform: uppercase; font-size: clamp(38px, 4.8vw, 62px); line-height: 0.92; letter-spacing: -0.025em; color: var(--ink); margin-bottom: 20px; }
-.app-mock-sub { font-family: var(--serif); font-size: clamp(18px,2vw,23px); line-height:1.6; color:var(--ink-2); max-width:500px; margin-bottom:36px; }
-.app-mock { border-radius: 10px; overflow: hidden; box-shadow: 0 20px 80px rgba(42,22,34,.16); border: 1px solid rgba(42,22,34,.1); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; -webkit-font-smoothing: antialiased; }
-.app-titlebar { background: #EDE8E3; height: 42px; display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid #D5CEC6; position: relative; }
-.traffic-lights { display: flex; gap: 7px; }
-.tl { width: 12px; height: 12px; border-radius: 50%; }
-.tl-r { background: #FF5F57; } .tl-y { background: #FFBD2E; } .tl-g { background: #28C840; }
-.app-name { position: absolute; left: 50%; transform: translateX(-50%); font-size: 13px; font-weight: 600; color: #4A3F38; }
-.app-body { display: grid; grid-template-columns: 162px 1fr 188px; height: 460px; }
-.app-sidebar { background: #EDE8E2; border-right: 1px solid #D5CEC6; overflow: hidden; }
-.app-sidebar-head { padding: 14px 14px 6px; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #9C8F86; }
-.app-proj { padding: 5px 14px; font-size: 12px; color: #3D322C; border-radius: 4px; margin: 1px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.app-proj.active { background: #E2D9D0; font-weight: 600; }
-.app-main { display: flex; flex-direction: column; background: #F8F4F0; }
-.app-tabs { display: flex; border-bottom: 1px solid #D5CEC6; background: #F2EDE7; padding: 0 12px; flex-shrink: 0; }
-.app-tab { padding: 9px 13px; font-size: 11.5px; color: #9C8F86; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
-.app-tab.active { color: #BD5E35; border-bottom-color: #BD5E35; font-weight: 600; }
-.app-messages { flex: 1; overflow: hidden; padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
-.msg { max-width: 86%; }
-.msg-agent { align-self: flex-start; }
-.msg-owner { align-self: flex-end; }
-.msg-meta { font-size: 10px; color: #A09288; margin-bottom: 4px; }
-.msg-owner .msg-meta { text-align: right; }
-.msg-bubble { padding: 9px 13px; border-radius: 10px; font-size: 12px; line-height: 1.55; }
-.msg-agent .msg-bubble { background: #E8E2DA; color: #2A2218; border-radius: 2px 10px 10px 10px; }
-.msg-owner .msg-bubble { background: #BD5E35; color: #FFF8F4; border-radius: 10px 2px 10px 10px; }
-.app-input-bar { border-top: 1px solid #D5CEC6; padding: 9px 14px; display: flex; align-items: center; gap: 10px; background: #F2EDE7; flex-shrink: 0; }
-.app-input-agent { background: #E2D9D0; border: 1px solid #C8C0B6; border-radius: 4px; padding: 4px 10px; font-size: 11px; color: #4A3F38; font-weight: 600; white-space: nowrap; }
-.app-input-placeholder { flex: 1; font-size: 12px; color: #B0A49C; }
-.app-team { border-left: 1px solid #D5CEC6; background: #EDE8E2; overflow: hidden; }
-.app-team-head { padding: 14px 14px 6px; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #9C8F86; }
-.agent-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; }
-.agent-name-label { font-size: 12.5px; font-weight: 600; color: #2A2218; }
-.agent-role-label { font-size: 10.5px; color: #9C8F86; margin-top: 1px; }
-.agent-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.agent-status-dot.on { background: #5BC98A; } .agent-status-dot.off { background: #C9BDB5; }
+/* ════ ДЕМО (тёмная) — окно приложения ════ */
+.demo-grid{display:grid;grid-template-columns:.82fr 1.18fr;gap:50px;align-items:center}
+.demo-copy p{font-size:18px;line-height:1.65;color:#C9B9C1;margin-top:20px;max-width:40ch}
+.demo-copy .title{color:var(--cream)}
+.app{background:var(--cream);border-radius:11px;box-shadow:0 40px 100px rgba(0,0,0,.45);overflow:hidden;width:108%;color:var(--ink)}
+.app-bar{display:flex;align-items:center;gap:8px;padding:11px 15px;background:#F1E7E0;border-bottom:1px solid var(--line)}
+.app-bar i{width:11px;height:11px;border-radius:50%;display:block;background:var(--line)}
+.app-bar i:first-child{background:#E0695B}.app-bar i:nth-child(2){background:#E3B341}.app-bar i:nth-child(3){background:#6FB06A}
+.app-bar .t{margin-left:8px;font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.04em;color:var(--ink-2);text-transform:uppercase}
+.app-body{display:grid;grid-template-columns:124px 1fr 168px;min-height:360px}
+.rail{background:#F4EBE5;border-right:1px solid var(--line);padding:14px 11px}
+.rail .lbl{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:0 0 8px 4px}
+.rail .lbl.mt{margin-top:18px}
+.rail .it{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:7px;font-size:12.5px;color:var(--ink-2);margin-bottom:2px}
+.rail .it.sel{background:#fff;color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(42,22,34,.08)}
+.rail .it .ds{width:6px;height:6px;border-radius:50%;background:#6FB06A;flex:none}
+.rail .it.off .ds{background:var(--line)}
+.chat{display:flex;flex-direction:column;padding:15px 17px;gap:9px;background:#fff}
+.chat .ch{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:3px}
+.bub{max-width:84%;padding:9px 13px;border-radius:13px;font-size:13px;line-height:1.45}
+.bub.me{align-self:flex-end;background:var(--ink);color:var(--cream);border-bottom-right-radius:4px}
+.bub.ag{align-self:flex-start;background:#F6EFEA;border-bottom-left-radius:4px}
+.bub .who{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--terra);margin-bottom:3px}
+.composer{margin-top:auto;display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:999px;padding:9px 12px}
+.composer .ph{flex:1;font-size:12.5px;color:var(--ink-3)}
+.composer .s{width:26px;height:26px;border-radius:50%;background:var(--ink);color:var(--cream);display:grid;place-items:center;font-size:13px}
+.board{background:#F4EBE5;border-left:1px solid var(--line);padding:14px 12px}
+.board .lbl{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:0 0 9px 2px}
+.tcard{background:#fff;border:1px solid var(--line);border-radius:9px;padding:9px 10px;margin-bottom:8px}
+.tcard .tt{font-size:12px;font-weight:600;line-height:1.3}
+.tcard .tm{display:flex;gap:5px;margin-top:7px}
+.pill{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.05em;color:#fff;border-radius:999px;padding:2px 7px;text-transform:uppercase}
+.pill.p1{background:var(--terra)}.pill.p2{background:#C99A3E}.pill.st{background:var(--ink-3)}.pill.dn{background:#6FB06A}
 
-/* closing note */
-.note-bar { padding: 26px 0; }
-.note-bar p { font-family: var(--sans); font-size: 13px; color: var(--ink-3); text-align: center; }
+/* ════ ПОЧЕМУ ════ */
+.benefits{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:2px;margin-top:54px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--line)}
+.ben{background:var(--cream);padding:30px 28px}
+.ben .n{font-family:var(--disp);font-weight:800;font-size:13px;letter-spacing:.1em;color:var(--terra);margin-bottom:16px}
+.ben h3{font-family:var(--disp);font-weight:800;font-size:21px;text-transform:uppercase;letter-spacing:-.01em;line-height:1.05}
+.ben p{font-size:15px;line-height:1.55;color:var(--ink-2);margin-top:11px}
 
-@media (max-width: 860px) {
-  .wrap { padding: 0 24px; }
-  .ed { flex-direction: column; min-height: 0; }
-  .ed-label { padding: 40px 24px 0; }
-  .ed-label .word { writing-mode: horizontal-tb; font-size: clamp(46px, 16vw, 92px); line-height: .92; }
-  .ed-body { padding: 28px 24px 64px; }
-  .dock { right: 16px; bottom: 16px; }
+/* ════ КЕЙСЫ ════ */
+.cases{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:54px}
+.aud.solo .cases{grid-template-columns:repeat(2,1fr)}
+body[data-mode="solo"] .s-bg .cases{margin-top:54px}
+.case{padding:44px 30px;display:flex;flex-direction:column;justify-content:flex-start;transition:filter .15s}
+.case:hover{filter:brightness(1.07)}
+.case.c-white{background:var(--cream);color:var(--ink)}
+.case.c-orange{background:var(--signal-orange);color:var(--cream)}
+.case.c-violet{background:var(--violet);color:var(--cream)}
+.case.c-black{background:var(--ink);color:var(--cream)}
+.case .role{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:currentColor;opacity:.7;margin-bottom:18px}
+.case h4{font-family:var(--disp);font-weight:800;font-size:clamp(28px,2.8vw,38px);text-transform:uppercase;letter-spacing:-.01em;line-height:1.02;color:currentColor}
+.case .sub{font-size:16px;font-weight:600;line-height:1.4;color:currentColor;opacity:.85;margin-top:10px}
+.case p{font-size:14.5px;line-height:1.5;color:currentColor;opacity:.7;margin-top:12px}
+
+/* ════ ТЕХ ════ */
+.techs{display:grid;grid-template-columns:repeat(3,1fr);margin-top:54px;border-top:1px solid var(--w-line);border-left:1px solid var(--w-line)}
+.tech{background:var(--deep);padding:28px 26px;border-right:1px solid var(--w-line);border-bottom:1px solid var(--w-line)}
+.tech .mono{font-size:13px;font-weight:700;letter-spacing:.06em;color:var(--signal-orange)}
+.tech p{font-size:14.5px;line-height:1.5;color:var(--w-soft);margin-top:10px}
+@media(max-width:900px){.techs{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.techs{grid-template-columns:1fr}}
+
+/* ════ ОСНОВАТЕЛЬ ════ */
+.s-founder{background:var(--violet);color:var(--cream)}
+.founder-grid{display:grid;grid-template-columns:.4fr .6fr;gap:56px;align-items:center}
+.founder-photo img{width:100%;border-radius:0;display:block;object-fit:cover;aspect-ratio:1}
+.founder-quote .mark{font-family:var(--disp);font-size:80px;color:var(--signal-orange);line-height:.6;font-weight:900}
+.founder-quote .quote{font-size:22px;line-height:1.55;color:var(--cream);margin-top:8px}
+.founder-quote .who{margin-top:24px;display:flex;flex-direction:column;gap:2px}
+.founder-quote .who .name{font-weight:800;font-family:var(--disp);font-size:16px;color:var(--cream)}
+.founder-quote .who .role{font-size:13px;color:var(--w-soft);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em}
+@media(max-width:900px){.founder-grid{grid-template-columns:1fr;gap:28px}.founder-photo img{max-width:220px}}
+
+/* ════ CHAT VS TASK VS KELLY ════ */
+.compare-grid{display:grid;grid-template-columns:.9fr .9fr 1.2fr;gap:0;margin-top:32px}
+.compare-col{padding:36px 30px}
+.compare-label{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:currentColor;opacity:.75;margin-bottom:20px}
+.compare-col h4{font-family:var(--disp);font-weight:800;font-size:clamp(22px,2vw,28px);text-transform:uppercase;letter-spacing:-.01em;color:currentColor;margin-bottom:18px}
+.compare-col ul{list-style:none;display:flex;flex-direction:column;gap:14px}
+.compare-col li{font-size:14.5px;line-height:1.5;color:currentColor;opacity:.9;padding-left:20px;position:relative}
+.compare-col li::before{content:'—';position:absolute;left:0;opacity:.6}
+.compare-chat{background:var(--violet);color:var(--cream)}
+.compare-task{background:var(--ink);color:var(--cream)}
+.compare-kelly{background:var(--signal-orange);color:var(--cream)}
+.compare-kelly li::before{content:'✓'}
+.s-compare .eyebrow{color:var(--violet)}
+.s-compare .title .tint{color:var(--violet)}
+@media(max-width:760px){.compare-grid{grid-template-columns:1fr}}
+
+/* ════ ФИНАЛ ════ */
+.final{text-align:center}
+.final .head{font-family:var(--disp);font-weight:900;font-size:clamp(40px,6vw,92px);line-height:1.15;letter-spacing:-.035em;text-transform:uppercase}
+.final .lead{font-size:19px;color:var(--w);margin:22px auto 0;max-width:48ch;line-height:1.55}
+.final .actions{display:flex;gap:14px;justify-content:center;margin-top:34px;flex-wrap:wrap}
+.final .fine{margin-top:18px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--w-soft)}
+.btn-final-dl{background:var(--signal-orange);color:var(--cream);border-color:var(--signal-orange);font-size:18px;padding:16px 34px}
+.btn-final-dl:hover{background:var(--terra-dp);border-color:var(--terra-dp)}
+
+/* ════ FOOTER ════ */
+footer{background:var(--deep);color:#9a8a93;padding:46px 0}
+.foot-in{display:flex;align-items:center;justify-content:space-between;gap:22px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.foot-in .logo{color:var(--cream);text-transform:none}.foot-in .logo i{color:var(--signal-orange)}
+.foot-nav{display:flex;gap:20px;background:transparent}
+.foot-nav a{color:#9a8a93;text-decoration:none}.foot-nav a:hover{color:var(--terra)}
+
+@media(max-width:900px){
+  .demo-grid{grid-template-columns:1fr;gap:36px}.app{width:100%}
+  .cases{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:640px){
+  .nav-in{grid-template-columns:auto 1fr;height:auto;padding:14px 0;row-gap:12px}
+  .nav-in>.logo{grid-column:1}
+  .nav-in>.nav-right{grid-column:2}
+  .nav-in>.tgl{grid-column:1/-1;justify-self:stretch}
+  .tgl{justify-content:center}
+}
+@media(max-width:600px){
+  .wrap{padding:0 22px}section{padding:74px 0}
+  .hero .head{font-size:46px}
+  .app-body{grid-template-columns:1fr}.rail,.board{display:none}
+  .facts .sep{padding:0 9px}
+  .cases,.aud.solo .cases{grid-template-columns:1fr}
 }
 </style>
 </head>
-<body>
+<body data-mode="solo">
 
-<div id="scrollProgress"></div>
+<!-- ══ NAV ══ -->
+<nav><div class="wrap nav-in">
+  <a class="logo" href="#">ke<i>ll</i>y</a>
+  <div class="tgl" role="tablist" aria-label="Аудитория">
+    <button id="t-solo" class="on" onclick="setMode('solo')" data-i18n="mode_solo">Для себя</button>
+    <button id="t-team" onclick="setMode('team')" data-i18n="mode_team">Для бизнеса</button>
+  </div>
+  <div class="nav-right">
+    <div class="tgl sm" role="tablist" aria-label="Language">
+      <button id="l-ru" class="on" onclick="setLang('ru')">RU</button>
+      <button id="l-en" onclick="setLang('en')">EN</button>
+    </div>
+    <a class="nav-dl" href="#download" data-i18n="nav_dl">Скачать</a>
+  </div>
+</div></nav>
 
-<div class="lang-dock" id="langDock">
-  <button class="lang-btn" id="langBtn">EN</button>
-  <div class="lang-menu">
-    <button class="lang-opt active" data-lang="en">EN</button>
-    <button class="lang-opt" data-lang="ru">RU</button>
+<!-- ══ HERO ══ -->
+<header class="s-terra hero"><div class="wrap">
+  <h1 class="head fit"><span class="line" data-i18n="hero_line1">ИИ-экзоскелет</span><span class="line vio rot" id="rotLine"><span id="rotPrefix" data-i18n="hero_rot_prefix">для тех, кто </span><span class="rot-txt" id="rotTxt"></span><span class="crs">|</span></span></h1>
+  <div class="aud solo">
+    <p class="lead" data-i18n="hero_solo_lead">ИИ-агенты работают вместе под твоим началом: разработчик, дизайнер, аналитик — <b>уже настроены и готовы.</b></p>
+    <div class="actions">
+      <a class="btn btn-cream" href="#download" data-i18n="btn_download">Скачать</a>
+      <a class="btn btn-line-w" href="#how" data-i18n="btn_how">Как это работает</a>
+    </div>
+  </div>
+  <div class="aud team">
+    <p class="lead" data-i18n="hero_team_lead">Дай каждому сотруднику целую команду. Поставил приложение — у человека уже есть разработчик, аналитик, ассистент. <b>Внедрение — это установка, а не проект на год.</b></p>
+    <div class="flag" data-i18n="hero_team_flag">Один клик. Не один квартал.</div>
+    <div class="actions">
+      <a class="btn btn-cream" href="#download" data-i18n="btn_download">Скачать</a>
+      <a class="btn btn-line-w" href="#how" data-i18n="btn_biz_pricing">Тарифы для бизнеса</a>
+    </div>
   </div>
 </div>
-
-<a href="https://github.com/stepanovis/kelly-desktop/releases/download/v3.1.29/Kelly-3.1.29-arm64.dmg" class="dock" aria-label="Download Kelly free for macOS" data-i18n="dock">↓ Download free</a>
-
-<!-- Hero -->
-<header class="ed hero" id="hero">
-  <div class="ed-label"><span class="word">Kelly</span></div>
-  <div class="ed-body">
-    <p class="hero-prose" data-i18n="hero_prose">is a Mac app with all your <span class="tc">projects, tasks and context</span> — plus an <span class="tc">AI agent team</span> — in one place. <em>Where solo becomes a team.</em></p>
-  </div>
+  <div class="facts"><div class="wrap facts-clip"><div class="track">
+    <div class="grp" data-i18n="facts_ticker">
+      <span class="f"><b>30+</b> готовых агентов</span><span class="sep">/</span>
+      <span class="f">данные хранятся <b>локально</b></span><span class="sep">/</span>
+      <span class="f"><b>любые</b> модели</span><span class="sep">/</span>
+      <span class="f"><b>$0</b> наценки на ИИ</span><span class="sep">/</span>
+      <span class="f"><b>умная</b> база знаний</span><span class="sep">/</span>
+      <span class="f">автоматизация <b>рутин</b></span><span class="sep">/</span>
+      <span class="f">ассистент для <b>мессенджеров</b></span><span class="sep">/</span>
+      <span class="f">работает <b>24/7</b></span><span class="sep">/</span>
+      <span class="f"><b>приватность</b> по умолчанию</span><span class="sep">/</span>
+    </div>
+    <div class="grp" data-i18n="facts_ticker">
+      <span class="f"><b>30+</b> готовых агентов</span><span class="sep">/</span>
+      <span class="f">данные хранятся <b>локально</b></span><span class="sep">/</span>
+      <span class="f"><b>любые</b> модели</span><span class="sep">/</span>
+      <span class="f"><b>$0</b> наценки на ИИ</span><span class="sep">/</span>
+      <span class="f"><b>умная</b> база знаний</span><span class="sep">/</span>
+      <span class="f">автоматизация <b>рутин</b></span><span class="sep">/</span>
+      <span class="f">ассистент для <b>мессенджеров</b></span><span class="sep">/</span>
+      <span class="f">работает <b>24/7</b></span><span class="sep">/</span>
+      <span class="f"><b>приватность</b> по умолчанию</span><span class="sep">/</span>
+    </div>
+  </div></div></div>
 </header>
 
-<!-- APP -->
-<section class="ed" id="app">
-  <div class="ed-label"><span class="word">App</span></div>
-  <div class="ed-body" style="padding-right:56px;">
-    <div class="app-mock" style="max-width:800px;">
-    <div class="app-titlebar">
-      <div class="traffic-lights"><span class="tl tl-r"></span><span class="tl tl-y"></span><span class="tl tl-g"></span></div>
-      <span class="app-name">Kelly.</span>
+<!-- ══ ПРОБЛЕМА ══ -->
+<section class="s-cream"><div class="wrap">
+  <div class="aud solo">
+    <div class="sec-head wide">
+      <h2 class="kelly-peak">Kelly —</h2>
+      <div class="mountain">
+        <div class="mrow"><span class="stk">IDE</span><span class="stk">Todoist</span><span class="stk">Miro</span></div>
+        <div class="mrow"><span class="stk">Notion</span><span class="stk">OpenAI</span><span class="stk">Claude</span></div>
+        <div class="mrow"><span class="stk">Obsidian</span><span class="stk">Hermes</span><span class="stk">OpenClaw</span></div>
+      </div>
+      <p class="enough" data-i18n="problem_enough">Всё включено!</p>
     </div>
+  </div>
+  <div class="aud team">
+    <div class="sec-head">
+      <span class="mono eyebrow" data-i18n="problem_team_eyebrow">Узнаёте?</span>
+      <h2 class="title" data-i18n="problem_team_title">«Внедрить ИИ» звучит как <span class="tint">большой проект</span></h2>
+      <p class="lede" data-i18n="problem_team_lede">Кажется, нужны месяцы интеграций, обучение и отдельный бюджет. Поэтому до дела так и не доходит — откладывается на «потом».</p>
+    </div>
+    <div class="chaos">
+      <div class="c"><div class="k" data-i18n="chaos_1_k">Интеграции</div><p data-i18n="chaos_1_p">подключить ИИ к каждой системе</p></div>
+      <div class="c"><div class="k" data-i18n="chaos_2_k">Обучение</div><p data-i18n="chaos_2_p">научить людей писать промпты</p></div>
+      <div class="c"><div class="k" data-i18n="chaos_3_k">Безопасность</div><p data-i18n="chaos_3_p">куда уходят данные компании?</p></div>
+      <div class="c"><div class="k" data-i18n="chaos_4_k">Сроки и бюджет</div><p data-i18n="chaos_4_p">проект на квартал, легко отложить</p></div>
+    </div>
+    <div class="resolve"><span class="arr">→</span><span class="rt" data-i18n="problem_team_resolve">С Kelly это <span class="tint">установка приложения</span>. Сегодня</span></div>
+  </div>
+</div></section>
+
+<!-- ══ ДЕМО (тёмная) ══ -->
+<section class="s-dark" id="how"><div class="wrap demo-grid">
+  <div class="demo-copy">
+    <div class="aud solo">
+      <h2 class="title" data-i18n="demo_solo_title">Ставишь задачу — <span class="tint">команда работает</span></h2>
+      <p data-i18n="demo_solo_p1">Групповой чат, где агенты сами координируются, ведут доску задач и общую базу знаний проекта.</p>
+      <p data-i18n="demo_solo_p2">Ты — руководитель в разговоре.</p>
+    </div>
+    <div class="aud team">
+      <h2 class="title" data-i18n="demo_team_title">Рабочее место, где <span class="tint">один = команда</span></h2>
+      <p data-i18n="demo_team_p1">Каждый сотрудник получает готовую ИИ-команду с настроенными ролями. Они координируются в чате, ведут задачи и знания проекта.</p>
+      <p data-i18n="demo_team_p2">Один стандарт рабочего места на каждом компьютере.</p>
+    </div>
+  </div>
+  <div class="app" aria-hidden="true">
+    <div class="app-bar"><i></i><i></i><i></i><span class="t" data-i18n="app_bar_title">Kelly — проект «Лендинг»</span></div>
     <div class="app-body">
-      <div class="app-sidebar">
-        <div class="app-sidebar-head" data-i18n="app_projects">Projects</div>
-        <div class="app-proj">Meta Office</div>
-        <div class="app-proj">Growth</div>
-        <div class="app-proj active">Kelly</div>
-        <div class="app-proj">Finch</div>
-        <div class="app-proj">Lectures</div>
-        <div class="app-proj">Point Legal</div>
-        <div class="app-proj">Life</div>
+      <div class="rail">
+        <p class="lbl" data-i18n="app_projects">Проекты</p>
+        <div class="it sel" data-i18n="app_proj_landing">Лендинг</div><div class="it" data-i18n="app_proj_app">Приложение</div><div class="it" data-i18n="app_proj_marketing">Маркетинг</div>
+        <p class="lbl mt" data-i18n="app_team">Команда</p>
+        <div class="it"><span class="ds"></span>Markus</div><div class="it"><span class="ds"></span>Gerald</div>
+        <div class="it"><span class="ds"></span>Maya</div><div class="it off"><span class="ds"></span>Scout</div>
       </div>
-      <div class="app-main">
-        <div class="app-tabs">
-          <div class="app-tab active" data-i18n="app_chat">Chat</div>
-          <div class="app-tab" data-i18n="app_tasks">Tasks</div>
-          <div class="app-tab" data-i18n="app_docs">Docs</div>
-          <div class="app-tab" data-i18n="app_code">Code</div>
-          <div class="app-tab" data-i18n="app_knowledge">Knowledge</div>
-        </div>
-        <div class="app-messages">
-          <div class="msg msg-agent">
-            <div class="msg-meta">@Elena &middot; 10:42</div>
-            <div class="msg-bubble" data-i18n="app_msg1">Ready to take the marketing strategy. Where do we start — content or email?</div>
-          </div>
-          <div class="msg msg-owner">
-            <div class="msg-meta">Owner &middot; 10:44</div>
-            <div class="msg-bubble" data-i18n="app_msg2">Let's start with content. @Markus, are you ready on the backend?</div>
-          </div>
-          <div class="msg msg-agent">
-            <div class="msg-meta">@Markus &middot; 10:44</div>
-            <div class="msg-bubble" data-i18n="app_msg3">Ready. Taking three tasks from backlog — auth, onboarding and CI. Will report by end of day.</div>
-          </div>
-        </div>
-        <div class="app-input-bar">
-          <div class="app-input-agent">@Elena ▾</div>
-          <div class="app-input-placeholder" data-i18n="app_input">Message @Elena…</div>
-        </div>
+      <div class="chat">
+        <div class="ch" data-i18n="app_chat_head">Чат проекта</div>
+        <div class="bub me" data-i18n="app_msg1">@Markus собери лендинг по макету Gerald</div>
+        <div class="bub ag"><div class="who">Markus · Dev</div><span data-i18n="app_msg2">Принял. Беру дизайн из базы знаний, к вечеру первый билд.</span></div>
+        <div class="bub ag"><div class="who">Maya · PM</div><span data-i18n="app_msg3">Добавила в задачи, приоритет P1.</span></div>
+        <div class="bub me" data-i18n="app_msg4">отлично, погнали</div>
+        <div class="composer"><span class="ph" data-i18n="app_input">Написать команде…</span><span class="s">→</span></div>
       </div>
-      <div class="app-team">
-        <div class="app-team-head" data-i18n="app_team">Team</div>
-        <div class="agent-row"><div><div class="agent-name-label">@Elena</div><div class="agent-role-label">Chief Marketing Officer</div></div><div class="agent-status-dot on"></div></div>
-        <div class="agent-row"><div><div class="agent-name-label">@Markus</div><div class="agent-role-label">Developer</div></div><div class="agent-status-dot on"></div></div>
-        <div class="agent-row"><div><div class="agent-name-label">@Gerald</div><div class="agent-role-label">Designer</div></div><div class="agent-status-dot off"></div></div>
-        <div class="agent-row"><div><div class="agent-name-label">@Nina</div><div class="agent-role-label">QA Engineer</div></div><div class="agent-status-dot on"></div></div>
-        <div class="agent-row"><div><div class="agent-name-label">@Oleg</div><div class="agent-role-label">System Architect</div></div><div class="agent-status-dot on"></div></div>
+      <div class="board">
+        <p class="lbl" data-i18n="app_tasks">Задачи</p>
+        <div class="tcard"><div class="tt" data-i18n="app_task1">Сверстать hero + тогл</div><div class="tm"><span class="pill p1">P1</span><span class="pill st" data-i18n="app_status_progress">в работе</span></div></div>
+        <div class="tcard"><div class="tt" data-i18n="app_task2">Тексты секций</div><div class="tm"><span class="pill p2">P2</span><span class="pill st" data-i18n="app_status_backlog">бэклог</span></div></div>
+        <div class="tcard"><div class="tt" data-i18n="app_task3">Дизайн-система</div><div class="tm"><span class="pill dn" data-i18n="app_status_done">готово</span></div></div>
       </div>
     </div>
   </div>
-  </div>
-</section>
+</div></section>
 
-<!-- CHAT -->
-<section class="ed" id="chat">
-  <div class="ed-label"><span class="word">Chat</span></div>
-  <div class="ed-body">
-    <p class="hero-prose" data-i18n="chat_prose">A group chat with your <span class="tc">AI team</span>. @mention an agent, watch them coordinate. You're the <span class="tc">owner</span> in the conversation — not the one writing prompts into a void. <em>Not a chatbot. A team chat.</em></p>
+<!-- ══ КЕЙСЫ ══ -->
+<section class="s-bg"><div class="wrap">
+  <div class="aud team sec-head center">
+    <span class="mono eyebrow" data-i18n="cases_team_eyebrow">Что ты сможешь</span>
+    <h2 class="title" data-i18n="cases_team_title">Команда под <span class="tint">каждую функцию</span></h2>
   </div>
-</section>
-
-<!-- PROJECTS -->
-<section class="ed" id="projects">
-  <div class="ed-label"><span class="word">Projects</span></div>
-  <div class="ed-body">
-    <p class="hero-prose" data-i18n="projects_prose">Each project gets its own <span class="tc">team, chat history, task board and knowledge base</span>. Priorities, dependencies, owners — real project management, not a chatbot thread. Switch projects, switch context. <em>Everything stays in its place.</em></p>
+  <div class="aud solo sec-head">
+    <h2 class="title" data-i18n="cases_solo_title">Все сферы жизни <span class="tint">в одном месте</span></h2>
   </div>
-</section>
+  <div class="aud solo"><div class="cases">
+    <div class="case c-white"><h4 data-i18n="case1_h4">Второй мозг</h4><p class="sub" data-i18n="case1_sub">Храни идеи и мысли</p><p data-i18n="case1_p">Заметки, идеи, решения, контекст проектов — агент держит это в голове и достаёт нужное по первому вопросу.</p></div>
+    <div class="case c-violet"><h4 data-i18n="case2_h4">Проекты</h4><p class="sub" data-i18n="case2_sub">Организуй работу</p><p data-i18n="case2_p">Задачи, дедлайны, прогресс — агент держит план в голове и напоминает, что горит, вместо тебя.</p></div>
+    <div class="case c-black"><h4 data-i18n="case3_h4">Ассистенты</h4><p class="sub" data-i18n="case3_sub">Делегируй общение</p><p data-i18n="case3_p">Чаты и почта, ответы, планирование дня — агент читает поток сообщений и берёт рутину на себя.</p></div>
+    <div class="case c-white"><h4 data-i18n="case4_h4">Наставники</h4><p class="sub" data-i18n="case4_sub">Логика, языки, культура</p><p data-i18n="case4_p">Го, шахматы, языки, психология — агент подбирает наставника под задачу и держит связь между занятиями.</p></div>
+    <div class="case c-violet"><h4 data-i18n="case5_h4">Жизнь</h4><p class="sub" data-i18n="case5_sub">Здоровье, семья, быт</p><p data-i18n="case5_p">Дневник самочувствия, забота о близких, порядок в бытовых делах — не медсовет, а внимание к тому, что происходит вне работы.</p></div>
+    <div class="case c-black"><h4 data-i18n="case6_h4">Бизнес</h4><p class="sub" data-i18n="case6_sub">Веди идею до результата</p><p data-i18n="case6_p">Юнит-экономика, питчи, рабочий прототип — агент считает цифры и сам собирает MVP: сайт, бота, приложение.</p></div>
+  </div></div>
+  <div class="aud team"><div class="cases">
+    <div class="case"><div class="role" data-i18n="tcase1_role">Разработка</div><h4 data-i18n="tcase1_h4">ИИ в каждом репозитории</h4><p data-i18n="tcase1_p">Команда получает агентов, которые знают код проекта и ускоряют доставку.</p></div>
+    <div class="case"><div class="role" data-i18n="tcase2_role">Маркетинг</div><h4 data-i18n="tcase2_h4">Контент и кампании</h4><p data-i18n="tcase2_p">Маркетолог, копирайтер, аналитик рынка — функция, готовая к запуску.</p></div>
+    <div class="case"><div class="role" data-i18n="tcase3_role">Операции</div><h4 data-i18n="tcase3_h4">Процессы без рутины</h4><p data-i18n="tcase3_p">Агенты ведут задачи, отчёты и координацию — меньше ручной операционки.</p></div>
+    <div class="case"><div class="role" data-i18n="tcase4_role">Каждый сотрудник</div><h4 data-i18n="tcase4_h4">Личный ИИ-офис</h4><p data-i18n="tcase4_p">Один стандарт рабочего места на каждом компьютере компании.</p></div>
+  </div></div>
+</div></section>
 
-<!-- READY -->
-<section class="ed" id="ready">
-  <div class="ed-label"><span class="word">Ready</span></div>
-  <div class="ed-body">
-    <p class="hero-prose" data-i18n="ready_prose">Install and you're done. Kelly sets up <span class="tc">Claude automatically</span> — no terminal, no config files, no API keys. Ships with a library of <span class="tc">pre-built agents</span>: Developer, Designer, CMO, Research — real prompts, ready to work from day one. <em>Soon: any AI provider, any model.</em></p>
+<!-- ══ СЛАЙД ДЛЯ ТЕХНАРЕЙ ══ -->
+<div class="aud solo">
+<section class="s-dark"><div class="wrap">
+  <div class="sec-head">
+    <h2 class="title" data-i18n="tech_title">Слайд для <span class="tint">технарей</span></h2>
   </div>
-</section>
-
-<!-- LOCAL -->
-<section class="ed" id="local">
-  <div class="ed-label"><span class="word">Local</span></div>
-  <div class="ed-body">
-    <p class="hero-prose" data-i18n="local_prose">A Mac app with <span class="tc">full access to your file system</span>. Drop in a folder, a repo, a document — agents read what you give them. Your data never leaves your machine, and you decide exactly where it goes. <em>No cloud. No sync. No upload.</em></p>
-  </div>
-</section>
-
-<!-- PRICE -->
-<section class="ed" id="price">
-  <div class="ed-label"><span class="word">Price</span></div>
-  <div class="ed-body">
-    <p class="hero-prose" data-i18n="price_prose"><span class="tc">Free</span> — up to 2 projects, no credit card, forever. <span class="tc">Premium at $25/month</span> — unlimited projects. <span class="tc">Business at $50/month</span> — unlimited projects, priority support. You always pay AI providers directly, Kelly takes no markup. <em>Cancel anytime.</em></p>
-  </div>
-</section>
-
-<div class="note-bar">
-  <div class="wrap"><p>© 2026 Kelly · <a href="https://klly.works" style="color:inherit;text-decoration:underline;">klly.works</a> · A Mac app for your AI office. · <a href="/terms.html" style="color:inherit;text-decoration:underline;">Terms</a> · <a href="/privacy.html" style="color:inherit;text-decoration:underline;">Privacy</a> · <a href="/refund.html" style="color:inherit;text-decoration:underline;">Refund</a></p></div>
+  <div class="techs">
+    <div class="tech"><div class="mono">OLLAMA</div><p data-i18n="tech_ollama">Локальные модели на своей машине — без интернета и без чужих серверов.</p></div>
+    <div class="tech"><div class="mono">OPENROUTER</div><p data-i18n="tech_openrouter">Любой облачный провайдер на выбор — не заперты в одном поставщике моделей.</p></div>
+    <div class="tech"><div class="mono">RAG</div><p data-i18n="tech_rag">Локальные embeddings, sqlite-vec. Каждое сообщение сверяется с базой знаний автоматически — без лишних токенов.</p></div>
+    <div class="tech"><div class="mono">HTTP API</div><p data-i18n="tech_api">Управляй агентами, задачами и базой знаний программно — не только через UI.</p></div>
+    <div class="tech"><div class="mono" data-i18n="tech_skills_label">СКИЛЛЫ</div><p data-i18n="tech_skills">Переиспользуемые prompt-шаблоны, self-service — правишь через тот же API.</p></div>
+    <div class="tech"><div class="mono" data-i18n="tech_logs_label">ЛОГИ</div><p data-i18n="tech_logs">Read-only доступ к логам приложения через API — диагностика без похода в поддержку.</p></div>  </div>
+</div></section>
 </div>
 
-</body>
-<script>
-const T = {"en":{"hero_prose":"is a Mac app with all your <span class=\"tc\">projects, tasks and context</span> — plus an <span class=\"tc\">AI agent team</span> — in one place. <em>Where solo becomes a team.</em>","chat_prose":"A group chat with your <span class=\"tc\">AI team</span>. @mention an agent, watch them coordinate. You're the <span class=\"tc\">owner</span> in the conversation — not the one writing prompts into a void. <em>Not a chatbot. A team chat.</em>","projects_prose":"Each project gets its own <span class=\"tc\">team, chat history, task board and knowledge base</span>. Priorities, dependencies, owners — real project management, not a chatbot thread. Switch projects, switch context. <em>Everything stays in its place.</em>","ready_prose":"Install and you're done. Kelly sets up <span class=\"tc\">Claude automatically</span> — no terminal, no config files, no API keys. Ships with a library of <span class=\"tc\">pre-built agents</span>: Developer, Designer, CMO, Research — real prompts, ready to work from day one. <em>Soon: any AI provider, any model.</em>","local_prose":"A Mac app with <span class=\"tc\">full access to your file system</span>. Drop in a folder, a repo, a document — agents read what you give them. Your data never leaves your machine, and you decide exactly where it goes. <em>No cloud. No sync. No upload.</em>","price_prose":"<span class=\"tc\">Free</span> — up to 2 projects, no credit card, forever. <span class=\"tc\">Premium at $25/month</span> — unlimited projects. <span class=\"tc\">Business at $50/month</span> — unlimited projects, priority support. You always pay AI providers directly, Kelly takes no markup. <em>Cancel anytime.</em>","dock":"↓ Download free","app_projects":"Projects","app_chat":"Chat","app_tasks":"Tasks","app_docs":"Docs","app_code":"Code","app_knowledge":"Knowledge","app_team":"Team","app_msg1":"Ready to take the marketing strategy. Where do we start — content or email?","app_msg2":"Let's start with content. @Markus, are you ready on the backend?","app_msg3":"Ready. Taking three tasks from backlog — auth, onboarding and CI. Will report by end of day.","app_input":"Message @Elena…"},"ru":{"hero_prose":"это приложение для Mac с вашими <span class=\"tc\">проектами, задачами и контекстом</span> — плюс <span class=\"tc\">команда AI-агентов</span> — в одном месте. <em>Где один становится командой.</em>","chat_prose":"Групповой чат с вашей <span class=\"tc\">AI-командой</span>. @упомяните агента, наблюдайте за координацией. Вы — <span class=\"tc\">владелец</span> в переписке, а не тот, кто вводит промпты в пустоту. <em>Не чат-бот. Командный чат.</em>","projects_prose":"У каждого проекта есть своя <span class=\"tc\">команда, история чата, таск-борд и база знаний</span>. Приоритеты, зависимости, ответственные — настоящий прожект-менеджмент, а не чат-тред. Переключайтесь между проектами — контекст никуда не девается. <em>Каждое на своём месте.</em>","ready_prose":"Установили — и сразу работаете. Kelly настраивает <span class=\"tc\">Claude автоматически</span> — никакого терминала, конфигов и API-ключей. Поставляется с библиотекой <span class=\"tc\">готовых агентов</span>: Developer, Designer, CMO, Research — с реальными промптами, готовы с первого дня. <em>Скоро: любой AI-провайдер, любая модель.</em>","local_prose":"Приложение для Mac с <span class=\"tc\">полным доступом к файловой системе</span>. Добавьте папку, репозиторий, документ — агенты прочитают то, что вы даёте. Ваши данные никуда не уходят, и только вы решаете, куда они пойдут. <em>Никаких облаков. Никакой синхронизации. Никакой загрузки.</em>","price_prose":"<span class=\"tc\">Бесплатно</span> — до 2 проектов, без карты, навсегда. <span class=\"tc\">Premium за $25/месяц</span> — безлимит проектов. <span class=\"tc\">Business за $50/месяц</span> — безлимит проектов и приоритетная поддержка. Вы всегда платите AI-провайдерам напрямую, Kelly не берёт наценку. <em>Отмена в любой момент.</em>","dock":"↓ Скачать бесплатно","app_projects":"Проекты","app_chat":"Чат","app_tasks":"Задачи","app_docs":"Документы","app_code":"Код","app_knowledge":"Знания","app_team":"Команда","app_msg1":"Готова взять маркетинговую стратегию. С чего начнём — контент или email?","app_msg2":"Начнём с контента. @Markus, ты готов по бэкенду?","app_msg3":"Готов. Беру три задачи из бэклога — auth, onboarding и CI. Отчитаюсь к вечеру.","app_input":"Сообщение для @Elena…"}};
-let currentLang = 'en';
+<!-- ══ ПОЧЕМУ (бизнес) ══ -->
+<div class="aud team">
+<section class="s-cream"><div class="wrap">
+  <div class="sec-head center">
+    <span class="mono eyebrow" data-i18n="ben_eyebrow">Почему Kelly, а не ChatGPT, Claude App или Claude Code</span>
+    <h2 class="title" data-i18n="ben_title">Не функции. <span class="tint">Результат.</span></h2>
+  </div>
+  <div class="benefits">
+    <div class="ben"><div class="n">01</div><h3 data-i18n="ben1_h3">Внедрение = установка</h3><p data-i18n="ben1_p">Никаких интеграций и месяцев проекта. Поставил приложение сотруднику — всё началось.</p></div>
+    <div class="ben"><div class="n">02</div><h3 data-i18n="ben2_h3">Готовые роли</h3><p data-i18n="ben2_p">Разработчик, дизайнер, аналитик, исследователь — настроенные специалисты с первого дня.</p></div>
+    <div class="ben"><div class="n">03</div><h3 data-i18n="ben3_h3">Данные не уходят</h3><p data-i18n="ben3_p">Всё работает локально на машине сотрудника. Вы решаете, к чему агенты имеют доступ.</p></div>
+    <div class="ben"><div class="n">04</div><h3 data-i18n="ben4_h3">Без наценки на ИИ</h3><p data-i18n="ben4_p">За провайдеров платите напрямую — Kelly не берёт markup. Прозрачно на масштабе.</p></div>
+  </div>
+</div></section>
+</div>
 
-function setLang(lang) {
-  currentLang = lang;
-  const s = T[lang] || T.en;
-  document.querySelectorAll('[data-i18n]').forEach(function(el) {
-    const key = el.getAttribute('data-i18n');
-    const val = s[key] !== undefined ? s[key] : T.en[key];
-    if (val !== undefined) el.innerHTML = val;
+<!-- ══ CHAT-CENTRIC / TASK-CENTRIC / KELLY ══ -->
+<div class="aud solo">
+<section class="s-cream s-compare"><div class="wrap">
+  <div class="sec-head wide">
+    <h2 class="title" data-i18n="compare_title">Не чат-сессия или задача. <span class="tint">Общее пространство.</span></h2>
+  </div>
+  <div class="compare-grid">
+    <div class="compare-col compare-chat">
+      <div class="compare-label">ChatGPT / Claude App</div>
+      <h4 data-i18n="compare_chat_h4">Чат-сессия</h4>
+      <ul data-i18n="compare_chat_ul">
+        <li>Новый тред — чистый лист</li>
+        <li>Контекст обрывается за пределами сессии</li>
+        <li>Один разговор — один агент</li>
+      </ul>
+    </div>
+    <div class="compare-col compare-task">
+      <div class="compare-label" data-i18n="compare_task_label">Paperclip и похожие</div>
+      <h4 data-i18n="compare_task_h4">Пайплайн</h4>
+      <ul data-i18n="compare_task_ul">
+        <li>Задача проходит по жёсткому флоу</li>
+        <li>Хорошая трейсабилити, но нет гибкости</li>
+        <li>Шаг в сторону — и агент теряется</li>
+      </ul>
+    </div>
+    <div class="compare-col compare-kelly">
+      <div class="compare-label">Kelly</div>
+      <h4 data-i18n="compare_kelly_h4">Пространство</h4>
+      <ul data-i18n="compare_kelly_ul">
+        <li>Один чат на весь проект, общий для всех агентов</li>
+        <li>Задачи — объекты со статусом и историей, не жёсткий флоу</li>
+        <li>Контекст не сбрасывается: агент видит всё, что было</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+</div>
+
+<!-- ══ ОСНОВАТЕЛЬ ══ -->
+<div class="aud solo">
+<section class="s-founder"><div class="wrap">
+  <div class="founder-grid">
+    <div class="founder-photo"><img src="assets/founder.jpg" alt="Иван Степанов, создатель Kelly" data-i18n-alt="founder_alt"></div>
+    <div class="founder-quote">
+      <div class="mark">«</div>
+      <p class="quote" data-i18n="founder_quote">Я строю Kelly с помощью самой Kelly — прямо сейчас команда моих агентов работает над этим лендингом, пока я пишу это. У меня в Kelly крутится больше десятка проектов: от разработки самого приложения до партий в го, здоровья, английского, стихов и блога, который я веду. Я не открываю ChatGPT, когда нужно подумать или сделать — я захожу в свой офис, где меня уже ждёт команда: у каждого агента своё имя и характер, и я всегда знаю, к кому из них идти с чем.</p>
+      <div class="who"><span class="name" data-i18n="founder_name">Иван Степанов</span><span class="role" data-i18n="founder_role">Создатель Kelly</span></div>
+    </div>
+  </div>
+</div></section>
+</div>
+
+<!-- ══ ФИНАЛ ══ -->
+<section class="s-dark final" id="download"><div class="wrap">
+  <div class="aud solo">
+    <h2 class="head" data-i18n="final_solo_head">Где один<br><span style="color:var(--signal-orange)">становится командой.</span></h2>
+    <p class="lead" data-i18n="final_solo_lead">Скачай Kelly и собери свою ИИ-команду за пару минут. Бесплатно до 2 проектов, без карты.</p>
+    <div class="actions"><a class="btn btn-final-dl dock" href="https://github.com/stepanovis/kelly-desktop/releases/download/v3.1.29/Kelly-3.1.29-arm64.dmg" data-i18n="final_dl_btn" aria-label="Download Kelly free for macOS">Скачать для macOS →</a></div>
+    <div class="fine" data-i18n="final_solo_fine">macOS 12+ · Apple Silicon и Intel</div>
+  </div>
+  <div class="aud team">
+    <h2 class="head" data-i18n="final_team_head">Трансформация —<br><span style="color:var(--signal-orange)">в один клик.</span></h2>
+    <p class="lead" data-i18n="final_team_lead">Поставьте Kelly сотрудникам и дайте команде ИИ-офис уже сегодня. Без интеграций и долгих внедрений.</p>
+    <div class="actions"><a class="btn btn-cream dock" href="https://github.com/stepanovis/kelly-desktop/releases/download/v3.1.29/Kelly-3.1.29-arm64.dmg" data-i18n="final_dl_btn" aria-label="Download Kelly free for macOS">Скачать для macOS →</a><a class="btn btn-line-w" href="#" data-i18n="btn_biz_pricing">Тарифы для бизнеса</a></div>
+    <div class="fine" data-i18n="final_team_fine">macOS 12+ · отмена в любой момент</div>
+  </div>
+</div></section>
+
+<!-- ══ FOOTER ══ -->
+<footer><div class="wrap foot-in">
+  <a class="logo" href="#">ke<i>ll</i>y</a>
+  <nav class="foot-nav"><a href="/privacy.html" data-i18n="foot_privacy">Приватность</a><a href="https://t.me/+TKYEAe1RvQo5ZjNi" target="_blank" rel="noopener" data-i18n="foot_support">Поддержка</a></nav>
+  <span>© 2026 Kelly · macOS</span>
+</div></footer>
+
+<script>
+var T = {
+  ru: {
+    hero_line1: "ИИ-экзоскелет",
+    hero_rot_prefix: "для тех, кто ",
+    mode_solo: "Для себя",
+    mode_team: "Для бизнеса",
+    nav_dl: "Скачать",
+    btn_download: "Скачать",
+    btn_how: "Как это работает",
+    btn_biz_pricing: "Тарифы для бизнеса",
+    hero_solo_lead: "ИИ-агенты работают вместе под твоим началом: разработчик, дизайнер, аналитик — <b>уже настроены и готовы.</b>",
+    hero_team_lead: "Дай каждому сотруднику целую команду. Поставил приложение — у человека уже есть разработчик, аналитик, ассистент. <b>Внедрение — это установка, а не проект на год.</b>",
+    hero_team_flag: "Один клик. Не один квартал.",
+    facts_ticker: '<span class="f"><b>30+</b> готовых агентов</span><span class="sep">/</span><span class="f">данные хранятся <b>локально</b></span><span class="sep">/</span><span class="f"><b>любые</b> модели</span><span class="sep">/</span><span class="f"><b>$0</b> наценки на ИИ</span><span class="sep">/</span><span class="f"><b>умная</b> база знаний</span><span class="sep">/</span><span class="f">автоматизация <b>рутин</b></span><span class="sep">/</span><span class="f">ассистент для <b>мессенджеров</b></span><span class="sep">/</span><span class="f">работает <b>24/7</b></span><span class="sep">/</span><span class="f"><b>приватность</b> по умолчанию</span><span class="sep">/</span>',
+    problem_enough: "Всё включено!",
+    problem_team_eyebrow: "Узнаёте?",
+    problem_team_title: "«Внедрить ИИ» звучит как <span class=\"tint\">большой проект</span>",
+    problem_team_lede: "Кажется, нужны месяцы интеграций, обучение и отдельный бюджет. Поэтому до дела так и не доходит — откладывается на «потом».",
+    chaos_1_k: "Интеграции", chaos_1_p: "подключить ИИ к каждой системе",
+    chaos_2_k: "Обучение", chaos_2_p: "научить людей писать промпты",
+    chaos_3_k: "Безопасность", chaos_3_p: "куда уходят данные компании?",
+    chaos_4_k: "Сроки и бюджет", chaos_4_p: "проект на квартал, легко отложить",
+    problem_team_resolve: "С Kelly это <span class=\"tint\">установка приложения</span>. Сегодня",
+    demo_solo_title: "Ставишь задачу — <span class=\"tint\">команда работает</span>",
+    demo_solo_p1: "Групповой чат, где агенты сами координируются, ведут доску задач и общую базу знаний проекта.",
+    demo_solo_p2: "Ты — руководитель в разговоре.",
+    demo_team_title: "Рабочее место, где <span class=\"tint\">один = команда</span>",
+    demo_team_p1: "Каждый сотрудник получает готовую ИИ-команду с настроенными ролями. Они координируются в чате, ведут задачи и знания проекта.",
+    demo_team_p2: "Один стандарт рабочего места на каждом компьютере.",
+    app_bar_title: "Kelly — проект «Лендинг»",
+    app_projects: "Проекты", app_proj_landing: "Лендинг", app_proj_app: "Приложение", app_proj_marketing: "Маркетинг",
+    app_team: "Команда",
+    app_chat_head: "Чат проекта",
+    app_msg1: "@Markus собери лендинг по макету Gerald",
+    app_msg2: "Принял. Беру дизайн из базы знаний, к вечеру первый билд.",
+    app_msg3: "Добавила в задачи, приоритет P1.",
+    app_msg4: "отлично, погнали",
+    app_input: "Написать команде…",
+    app_tasks: "Задачи",
+    app_task1: "Сверстать hero + тогл", app_status_progress: "в работе",
+    app_task2: "Тексты секций", app_status_backlog: "бэклог",
+    app_task3: "Дизайн-система", app_status_done: "готово",
+    cases_team_eyebrow: "Что ты сможешь",
+    cases_team_title: "Команда под <span class=\"tint\">каждую функцию</span>",
+    cases_solo_title: "Все сферы жизни <span class=\"tint\">в одном месте</span>",
+    case1_h4: "Второй мозг", case1_sub: "Храни идеи и мысли", case1_p: "Заметки, идеи, решения, контекст проектов — агент держит это в голове и достаёт нужное по первому вопросу.",
+    case2_h4: "Проекты", case2_sub: "Организуй работу", case2_p: "Задачи, дедлайны, прогресс — агент держит план в голове и напоминает, что горит, вместо тебя.",
+    case3_h4: "Ассистенты", case3_sub: "Делегируй общение", case3_p: "Чаты и почта, ответы, планирование дня — агент читает поток сообщений и берёт рутину на себя.",
+    case4_h4: "Наставники", case4_sub: "Логика, языки, культура", case4_p: "Го, шахматы, языки, психология — агент подбирает наставника под задачу и держит связь между занятиями.",
+    case5_h4: "Жизнь", case5_sub: "Здоровье, семья, быт", case5_p: "Дневник самочувствия, забота о близких, порядок в бытовых делах — не медсовет, а внимание к тому, что происходит вне работы.",
+    case6_h4: "Бизнес", case6_sub: "Веди идею до результата", case6_p: "Юнит-экономика, питчи, рабочий прототип — агент считает цифры и сам собирает MVP: сайт, бота, приложение.",
+    tcase1_role: "Разработка", tcase1_h4: "ИИ в каждом репозитории", tcase1_p: "Команда получает агентов, которые знают код проекта и ускоряют доставку.",
+    tcase2_role: "Маркетинг", tcase2_h4: "Контент и кампании", tcase2_p: "Маркетолог, копирайтер, аналитик рынка — функция, готовая к запуску.",
+    tcase3_role: "Операции", tcase3_h4: "Процессы без рутины", tcase3_p: "Агенты ведут задачи, отчёты и координацию — меньше ручной операционки.",
+    tcase4_role: "Каждый сотрудник", tcase4_h4: "Личный ИИ-офис", tcase4_p: "Один стандарт рабочего места на каждом компьютере компании.",
+    tech_title: "Слайд для <span class=\"tint\">технарей</span>",
+    tech_ollama: "Локальные модели на своей машине — без интернета и без чужих серверов.",
+    tech_openrouter: "Любой облачный провайдер на выбор — не заперты в одном поставщике моделей.",
+    tech_rag: "Локальные embeddings, sqlite-vec. Каждое сообщение сверяется с базой знаний автоматически — без лишних токенов.",
+    tech_api: "Управляй агентами, задачами и базой знаний программно — не только через UI.",
+    tech_skills_label: "СКИЛЛЫ", tech_skills: "Переиспользуемые prompt-шаблоны, self-service — правишь через тот же API.",
+    tech_logs_label: "ЛОГИ", tech_logs: "Read-only доступ к логам приложения через API — диагностика без похода в поддержку.",
+    ben_eyebrow: "Почему Kelly, а не ChatGPT, Claude App или Claude Code",
+    ben_title: "Не функции. <span class=\"tint\">Результат.</span>",
+    ben1_h3: "Внедрение = установка", ben1_p: "Никаких интеграций и месяцев проекта. Поставил приложение сотруднику — всё началось.",
+    ben2_h3: "Готовые роли", ben2_p: "Разработчик, дизайнер, аналитик, исследователь — настроенные специалисты с первого дня.",
+    ben3_h3: "Данные не уходят", ben3_p: "Всё работает локально на машине сотрудника. Вы решаете, к чему агенты имеют доступ.",
+    ben4_h3: "Без наценки на ИИ", ben4_p: "За провайдеров платите напрямую — Kelly не берёт markup. Прозрачно на масштабе.",
+    compare_title: "Не чат-сессия или задача. <span class=\"tint\">Общее пространство.</span>",
+    compare_chat_h4: "Чат-сессия",
+    compare_chat_ul: "<li>Новый тред — чистый лист</li><li>Контекст обрывается за пределами сессии</li><li>Один разговор — один агент</li>",
+    compare_task_label: "Paperclip и похожие",
+    compare_task_h4: "Пайплайн",
+    compare_task_ul: "<li>Задача проходит по жёсткому флоу</li><li>Хорошая трейсабилити, но нет гибкости</li><li>Шаг в сторону — и агент теряется</li>",
+    compare_kelly_h4: "Пространство",
+    compare_kelly_ul: "<li>Один чат на весь проект, общий для всех агентов</li><li>Задачи — объекты со статусом и историей, не жёсткий флоу</li><li>Контекст не сбрасывается: агент видит всё, что было</li>",
+    founder_alt: "Иван Степанов, создатель Kelly",
+    founder_quote: "Я строю Kelly с помощью самой Kelly — прямо сейчас команда моих агентов работает над этим лендингом, пока я пишу это. У меня в Kelly крутится больше десятка проектов: от разработки самого приложения до партий в го, здоровья, английского, стихов и блога, который я веду. Я не открываю ChatGPT, когда нужно подумать или сделать — я захожу в свой офис, где меня уже ждёт команда: у каждого агента своё имя и характер, и я всегда знаю, к кому из них идти с чем.",
+    founder_name: "Иван Степанов", founder_role: "Создатель Kelly",
+    final_solo_head: "Где один<br><span style=\"color:var(--signal-orange)\">становится командой.</span>",
+    final_solo_lead: "Скачай Kelly и собери свою ИИ-команду за пару минут. Бесплатно до 2 проектов, без карты.",
+    final_dl_btn: "Скачать для macOS →",
+    final_solo_fine: "macOS 12+ · Apple Silicon и Intel",
+    final_team_head: "Трансформация —<br><span style=\"color:var(--signal-orange)\">в один клик.</span>",
+    final_team_lead: "Поставьте Kelly сотрудникам и дайте команде ИИ-офис уже сегодня. Без интеграций и долгих внедрений.",
+    final_team_fine: "macOS 12+ · отмена в любой момент",
+    foot_privacy: "Приватность", foot_support: "Поддержка",
+    title: "Kelly — один человек. Целая команда.",
+    desc: "Kelly — десктопное приложение для Mac с ИИ-агентами, которые работают вместе как команда: чат, задачи, база знаний в одном месте.",
+    rot_phrases: ["делает всё сам","боится начать","устал настраивать","хочет делать больше","мечтает о своей команде","готов исполнять мечты"]
+  },
+  en: {
+    hero_line1: "AI exoskeleton",
+    hero_rot_prefix: "for those who ",
+    mode_solo: "Solo",
+    mode_team: "Team",
+    nav_dl: "Download",
+    btn_download: "Download",
+    btn_how: "How it works",
+    btn_biz_pricing: "Business pricing",
+    hero_solo_lead: "AI agents work together, led by you: developer, designer, analyst — <b>already set up and ready to go.</b>",
+    hero_team_lead: "Give every employee an entire team. Install the app — they already have a developer, an analyst, an assistant. <b>Rollout is an install, not a year-long project.</b>",
+    hero_team_flag: "One click. Not one quarter.",
+    facts_ticker: '<span class="f"><b>30+</b> ready-made agents</span><span class="sep">/</span><span class="f">data stays <b>local</b></span><span class="sep">/</span><span class="f"><b>any</b> model</span><span class="sep">/</span><span class="f"><b>$0</b> markup on AI</span><span class="sep">/</span><span class="f"><b>smart</b> knowledge base</span><span class="sep">/</span><span class="f">automates <b>routine work</b></span><span class="sep">/</span><span class="f">assistant for <b>messengers</b></span><span class="sep">/</span><span class="f">works <b>24/7</b></span><span class="sep">/</span><span class="f"><b>privacy</b> by default</span><span class="sep">/</span>',
+    problem_enough: "Everything included!",
+    problem_team_eyebrow: "Sound familiar?",
+    problem_team_title: "\"Rolling out AI\" sounds like a <span class=\"tint\">huge project</span>",
+    problem_team_lede: "Feels like it needs months of integrations, training, a separate budget. So it never actually happens — it gets pushed to \"later.\"",
+    chaos_1_k: "Integrations", chaos_1_p: "connect AI to every system",
+    chaos_2_k: "Training", chaos_2_p: "teach people to write prompts",
+    chaos_3_k: "Security", chaos_3_p: "where does company data go?",
+    chaos_4_k: "Timeline & budget", chaos_4_p: "a quarter-long project, easy to postpone",
+    problem_team_resolve: "With Kelly it's <span class=\"tint\">installing an app</span>. Today",
+    demo_solo_title: "You set the task — <span class=\"tint\">the team gets to work</span>",
+    demo_solo_p1: "A group chat where agents coordinate on their own, run the task board and share a project knowledge base.",
+    demo_solo_p2: "You're the one running the conversation.",
+    demo_team_title: "A workplace where <span class=\"tint\">one person = a team</span>",
+    demo_team_p1: "Every employee gets a ready-made AI team with configured roles. They coordinate in chat, run tasks and the project's knowledge.",
+    demo_team_p2: "One workplace standard on every computer.",
+    app_bar_title: "Kelly — \"Landing page\" project",
+    app_projects: "Projects", app_proj_landing: "Landing page", app_proj_app: "App", app_proj_marketing: "Marketing",
+    app_team: "Team",
+    app_chat_head: "Project chat",
+    app_msg1: "@Markus put together the landing page from Gerald's design",
+    app_msg2: "Got it. Pulling the design from the knowledge base, first build by tonight.",
+    app_msg3: "Added to tasks, priority P1.",
+    app_msg4: "great, let's go",
+    app_input: "Message the team…",
+    app_tasks: "Tasks",
+    app_task1: "Build hero + toggle", app_status_progress: "in progress",
+    app_task2: "Section copy", app_status_backlog: "backlog",
+    app_task3: "Design system", app_status_done: "done",
+    cases_team_eyebrow: "What you can do",
+    cases_team_title: "A team for <span class=\"tint\">every function</span>",
+    cases_solo_title: "Every part of life <span class=\"tint\">in one place</span>",
+    case1_h4: "Second brain", case1_sub: "Keep your ideas and thoughts", case1_p: "Notes, ideas, decisions, project context — the agent keeps it all in mind and pulls up what you need the moment you ask.",
+    case2_h4: "Projects", case2_sub: "Organize your work", case2_p: "Tasks, deadlines, progress — the agent keeps the plan in mind and reminds you what's urgent, so you don't have to.",
+    case3_h4: "Assistants", case3_sub: "Delegate the talking", case3_p: "Chats and email, replies, planning your day — the agent reads the flow of messages and takes the routine off your plate.",
+    case4_h4: "Mentors", case4_sub: "Logic, languages, culture", case4_p: "Go, chess, languages, psychology — the agent picks the right mentor for the task and keeps continuity between sessions.",
+    case5_h4: "Life", case5_sub: "Health, family, home", case5_p: "A wellbeing journal, looking after loved ones, keeping everyday life in order — not medical advice, just attention to what happens outside of work.",
+    case6_h4: "Business", case6_sub: "Take an idea all the way", case6_p: "Unit economics, pitches, a working prototype — the agent crunches the numbers and builds the MVP itself: a site, a bot, an app.",
+    tcase1_role: "Engineering", tcase1_h4: "AI in every repository", tcase1_p: "The team gets agents that know the codebase and speed up delivery.",
+    tcase2_role: "Marketing", tcase2_h4: "Content and campaigns", tcase2_p: "A marketer, a copywriter, a market analyst — a function ready to launch.",
+    tcase3_role: "Operations", tcase3_h4: "Processes without the busywork", tcase3_p: "Agents handle tasks, reports and coordination — less manual ops work.",
+    tcase4_role: "Every employee", tcase4_h4: "A personal AI office", tcase4_p: "One workplace standard on every computer in the company.",
+    tech_title: "The <span class=\"tint\">nerd slide</span>",
+    tech_ollama: "Local models on your own machine — no internet, no third-party servers.",
+    tech_openrouter: "Any cloud provider you want — not locked into a single model vendor.",
+    tech_rag: "Local embeddings, sqlite-vec. Every message is checked against the knowledge base automatically — no wasted tokens.",
+    tech_api: "Control agents, tasks and the knowledge base programmatically — not just through the UI.",
+    tech_skills_label: "SKILLS", tech_skills: "Reusable prompt templates, self-service — edit through the same API.",
+    tech_logs_label: "LOGS", tech_logs: "Read-only access to app logs via API — diagnose issues without contacting support.",
+    ben_eyebrow: "Why Kelly, not ChatGPT, Claude App or Claude Code",
+    ben_title: "Not features. <span class=\"tint\">Results.</span>",
+    ben1_h3: "Rollout = install", ben1_p: "No integrations, no months-long project. Install the app for an employee — and it's already running.",
+    ben2_h3: "Ready-made roles", ben2_p: "Developer, designer, analyst, researcher — configured specialists from day one.",
+    ben3_h3: "Data stays put", ben3_p: "Everything runs locally on the employee's machine. You decide what agents can access.",
+    ben4_h3: "No markup on AI", ben4_p: "You pay providers directly — Kelly takes no markup. Transparent at scale.",
+    compare_title: "Not a chat session or a task. <span class=\"tint\">A shared space.</span>",
+    compare_chat_h4: "Chat session",
+    compare_chat_ul: "<li>New thread — blank slate</li><li>Context breaks outside the session</li><li>One conversation — one agent</li>",
+    compare_task_label: "Paperclip and similar tools",
+    compare_task_h4: "Pipeline",
+    compare_task_ul: "<li>The task moves through a rigid flow</li><li>Good traceability, but no flexibility</li><li>One step off-script and the agent gets lost</li>",
+    compare_kelly_h4: "Space",
+    compare_kelly_ul: "<li>One chat for the whole project, shared by every agent</li><li>Tasks are objects with status and history, not a rigid flow</li><li>Context never resets: the agent sees everything that happened</li>",
+    founder_alt: "Ivan Stepanov, founder of Kelly",
+    founder_quote: "I'm building Kelly with Kelly itself — right now my team of agents is working on this very landing page while I write this. I run more than a dozen projects inside Kelly: from building the app itself to go matches, health, English practice, poetry, and the blog I keep. I don't open ChatGPT when I need to think or get something done — I walk into my office, where a team is already waiting for me: every agent has their own name and character, and I always know exactly who to go to for what.",
+    founder_name: "Ivan Stepanov", founder_role: "Founder of Kelly",
+    final_solo_head: "Where solo<br><span style=\"color:var(--signal-orange)\">becomes a team.</span>",
+    final_solo_lead: "Download Kelly and build your AI team in a couple of minutes. Free up to 2 projects, no card required.",
+    final_dl_btn: "Download for macOS →",
+    final_solo_fine: "macOS 12+ · Apple Silicon and Intel",
+    final_team_head: "Transformation —<br><span style=\"color:var(--signal-orange)\">in one click.</span>",
+    final_team_lead: "Roll out Kelly to your team and give them an AI office today. No integrations, no long rollouts.",
+    final_team_fine: "macOS 12+ · cancel anytime",
+    foot_privacy: "Privacy", foot_support: "Support",
+    title: "Kelly — One person. A whole team.",
+    desc: "Kelly is a Mac app with AI agents that work together as a team — chat, tasks and a knowledge base in one place.",
+    rot_phrases: ["do it all alone","are afraid to start","are tired of setting things up","want to do more","dream of having a team","are ready to make dreams come true"]
+  }
+};
+var currentLang = 'ru';
+
+function applyLang(lang){
+  var s = T[lang] || T.ru;
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(s[key] !== undefined) el.innerHTML = s[key];
   });
-  document.getElementById('langBtn').textContent = lang.toUpperCase();
-  document.querySelectorAll('.lang-opt').forEach(function(b) {
-    b.classList.toggle('active', b.dataset.lang === lang);
+  document.querySelectorAll('[data-i18n-alt]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-alt');
+    if(s[key] !== undefined) el.setAttribute('alt', s[key]);
   });
-  try { localStorage.setItem('kelly-lang', lang); } catch(e) {}
-  document.getElementById('langDock').classList.remove('open');
+  document.title = s.title;
+  var desc = document.querySelector('meta[name="description"]');
+  if(desc) desc.setAttribute('content', s.desc);
+  document.documentElement.lang = lang;
+  document.getElementById('l-ru').classList.toggle('on', lang === 'ru');
+  document.getElementById('l-en').classList.toggle('on', lang === 'en');
 }
 
-const langDock = document.getElementById('langDock');
-document.getElementById('langBtn').addEventListener('click', function(e) {
-  e.stopPropagation(); langDock.classList.toggle('open');
-});
-document.addEventListener('click', function() { langDock.classList.remove('open'); });
-document.querySelectorAll('.lang-opt').forEach(function(btn) {
-  btn.addEventListener('click', function(e) { e.stopPropagation(); setLang(btn.dataset.lang); });
-});
+function setLang(lang){
+  currentLang = lang;
+  applyLang(lang);
+  try{ localStorage.setItem('kelly-lang', lang); }catch(e){}
+  requestAnimationFrame(fitLines);
+  restartRotator();
+}
 
-(function() {
-  var saved; try { saved = localStorage.getItem('kelly-lang'); } catch(e) {}
-  if (saved && T[saved]) setLang(saved);
+(function(){
+  var saved;
+  try{ saved = localStorage.getItem('kelly-lang'); }catch(e){}
+  if(saved && T[saved]){ currentLang = saved; }
+  else if(navigator.language && navigator.language.toLowerCase().indexOf('ru') !== 0){ currentLang = 'en'; }
+  applyLang(currentLang);
 })();
 
-// Scroll progress bar
-(function() {
-  var bar = document.getElementById('scrollProgress');
-  function update() {
-    var h = document.documentElement;
-    var max = h.scrollHeight - h.clientHeight;
-    var pct = max > 0 ? (h.scrollTop || document.body.scrollTop) / max * 100 : 0;
-    bar.style.width = pct + '%';
+function fitLines(){
+  document.querySelectorAll('.fit').forEach(function(box){
+    var target=box.clientWidth;
+    if(!target) return;
+    box.querySelectorAll('.line:not(.rot)').forEach(function(l){
+      l.style.fontSize='120px';
+      var w=l.scrollWidth;
+      if(w>0) l.style.fontSize=(120*target/w)+'px';
+    });
+  });
+}
+
+/* ── строка-стиратель под "ИИ-экзоскелет" — префикс статичен per-язык, стирается только хвост ── */
+var rotReduced=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+var rotTimers=[];
+
+function clearRotTimers(){
+  rotTimers.forEach(function(id){ clearTimeout(id); clearInterval(id); });
+  rotTimers = [];
+}
+
+function measureRotSize(text,box){
+  var probe=document.createElement('span');
+  probe.style.cssText='position:absolute;left:-9999px;top:-9999px;white-space:nowrap;visibility:hidden;font-family:var(--disp);font-weight:900;letter-spacing:-.04em;text-transform:uppercase;font-size:120px;line-height:.9';
+  probe.textContent=text;
+  document.body.appendChild(probe);
+  var w=probe.scrollWidth;
+  document.body.removeChild(probe);
+  var target=box.clientWidth;
+  return w>0?(120*target/w):120;
+}
+
+function currentRotPhrases(){
+  return (T[currentLang] || T.ru).rot_phrases;
+}
+function currentRotPrefix(){
+  return (T[currentLang] || T.ru).hero_rot_prefix;
+}
+
+function startRotator(){
+  var rotLine=document.getElementById('rotLine'),rotTxt=document.getElementById('rotTxt');
+  if(!rotLine||!rotTxt) return;
+  var box=rotLine.closest('.fit');
+  var phrases=currentRotPhrases();
+  var prefix=currentRotPrefix();
+  /* один фиксированный кегль на все фразы — считаем по самой длинной, чтобы никогда не переполнялось */
+  var fixedSize=Math.min.apply(null,phrases.map(function(p){return measureRotSize(prefix+p,box);}));
+  rotLine.style.fontSize=fixedSize+'px';
+  if(rotReduced){ rotTxt.textContent=phrases[0]; return; }
+  var pi=0;
+  function typePhrase(){
+    var phrase=phrases[pi%phrases.length];
+    var i=0;
+    var typeInt=setInterval(function(){
+      i++;
+      rotTxt.textContent=phrase.slice(0,i);
+      if(i>=phrase.length){ clearInterval(typeInt); var t=setTimeout(function(){erasePhrase(phrase);},1500); rotTimers.push(t); }
+    },55);
+    rotTimers.push(typeInt);
   }
-  window.addEventListener('scroll', update, { passive: true });
-  window.addEventListener('resize', update);
-  update();
-})();
+  function erasePhrase(phrase){
+    var j=phrase.length;
+    var eraseInt=setInterval(function(){
+      j--;
+      rotTxt.textContent=phrase.slice(0,j);
+      if(j<=0){ clearInterval(eraseInt); pi++; var t=setTimeout(typePhrase,300); rotTimers.push(t); }
+    },28);
+    rotTimers.push(eraseInt);
+  }
+  typePhrase();
+}
+function restartRotator(){
+  clearRotTimers();
+  var rotTxt=document.getElementById('rotTxt');
+  if(rotTxt) rotTxt.textContent='';
+  startRotator();
+}
+function resizeRotator(){
+  var rotLine=document.getElementById('rotLine');
+  if(!rotLine) return;
+  var box=rotLine.closest('.fit');
+  var phrases=currentRotPhrases();
+  var prefix=currentRotPrefix();
+  var fixedSize=Math.min.apply(null,phrases.map(function(p){return measureRotSize(prefix+p,box);}));
+  rotLine.style.fontSize=fixedSize+'px';
+}
+function setMode(m){
+  document.body.setAttribute('data-mode',m);
+  document.getElementById('t-solo').classList.toggle('on',m==='solo');
+  document.getElementById('t-team').classList.toggle('on',m==='team');
+  requestAnimationFrame(fitLines);
+}
+if(document.fonts&&document.fonts.ready){document.fonts.ready.then(fitLines);}
+window.addEventListener('load',fitLines);
+window.addEventListener('load',startRotator);
+window.addEventListener('resize',fitLines);
+window.addEventListener('resize',resizeRotator);
+
+/* Бегущая строка фактов — JS (requestAnimationFrame), не CSS @keyframes: двигаем
+   transform вручную по времени, бесшовная петля по модулю измеренной ширины одного
+   набора. Клипается по .facts-clip (=.wrap, ширина центральной колонки), а не по
+   всему экрану — фон при этом остаётся на всю ширину. */
+function runFactsMarquee(){
+  document.querySelectorAll('.facts .track').forEach(function(track){
+    if(track.dataset.marqueeRunning) return;
+    track.dataset.marqueeRunning='1';
+    var grp=track.querySelector('.grp');
+    if(!grp) return;
+    var speed=40; // px/сек
+    var paused=false;
+    var host=track.closest('.facts');
+    host.addEventListener('mouseenter',function(){paused=true;});
+    host.addEventListener('mouseleave',function(){paused=false;});
+    var last=null;
+    var offset=0;
+    function frame(ts){
+      if(last===null) last=ts;
+      var dt=ts-last;
+      last=ts;
+      var w=grp.getBoundingClientRect().width;
+      if(w>0 && !paused){
+        offset=(offset+speed*dt/1000)%w;
+        track.style.transform='translateX(-'+offset+'px)';
+      }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  });
+}
+if(document.fonts&&document.fonts.ready){ document.fonts.ready.then(runFactsMarquee); }
+window.addEventListener('load',runFactsMarquee);
 </script>
+</body>
 </html>
