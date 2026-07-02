@@ -736,14 +736,33 @@ function setLang(lang){
   applyLang(currentLang);
 })();
 
+function measureAt(text,box,cssText){
+  var probe=document.createElement('span');
+  probe.style.cssText=cssText;
+  probe.textContent=text;
+  document.body.appendChild(probe);
+  var w=probe.scrollWidth;
+  document.body.removeChild(probe);
+  var target=box.clientWidth;
+  return w>0&&target>0?(120*target/w):120;
+}
+
+/* фиксированный кегль строки 1 — считаем по самому широкому варианту (RU/EN), чтобы шрифт не менялся при смене языка */
 function fitLines(){
   document.querySelectorAll('.fit').forEach(function(box){
     var target=box.clientWidth;
     if(!target) return;
     box.querySelectorAll('.line:not(.rot)').forEach(function(l){
-      l.style.fontSize='120px';
-      var w=l.scrollWidth;
-      if(w>0) l.style.fontSize=(120*target/w)+'px';
+      var key=l.getAttribute('data-i18n');
+      var cssText='position:absolute;left:-9999px;top:-9999px;white-space:nowrap;visibility:hidden;font-family:var(--disp);font-weight:900;letter-spacing:-.04em;text-transform:uppercase;font-size:120px;line-height:.9';
+      if(key){
+        var sizes=['ru','en'].map(function(lg){return measureAt(T[lg][key],box,cssText);});
+        l.style.fontSize=Math.min.apply(null,sizes)+'px';
+      } else {
+        l.style.fontSize='120px';
+        var w=l.scrollWidth;
+        if(w>0) l.style.fontSize=(120*target/w)+'px';
+      }
     });
   });
 }
@@ -774,15 +793,22 @@ function currentRotPhrases(){
 function currentRotPrefix(){
   return (T[currentLang] || T.ru).hero_rot_prefix;
 }
+/* кегль строки-стирателя считаем по самой широкой фразе СРАЗУ ПО ОБОИМ языкам — чтобы размер не менялся при переключении RU/EN */
+function fixedRotSize(box){
+  var all=[];
+  ['ru','en'].forEach(function(lg){
+    var prefix=T[lg].hero_rot_prefix;
+    T[lg].rot_phrases.forEach(function(p){ all.push(prefix+p); });
+  });
+  return Math.min.apply(null,all.map(function(t){return measureRotSize(t,box);}));
+}
 
 function startRotator(){
   var rotLine=document.getElementById('rotLine'),rotTxt=document.getElementById('rotTxt');
   if(!rotLine||!rotTxt) return;
   var box=rotLine.closest('.fit');
   var phrases=currentRotPhrases();
-  var prefix=currentRotPrefix();
-  /* один фиксированный кегль на все фразы — считаем по самой длинной, чтобы никогда не переполнялось */
-  var fixedSize=Math.min.apply(null,phrases.map(function(p){return measureRotSize(prefix+p,box);}));
+  var fixedSize=fixedRotSize(box);
   rotLine.style.fontSize=fixedSize+'px';
   if(rotReduced){ rotTxt.textContent=phrases[0]; return; }
   var pi=0;
@@ -817,10 +843,7 @@ function resizeRotator(){
   var rotLine=document.getElementById('rotLine');
   if(!rotLine) return;
   var box=rotLine.closest('.fit');
-  var phrases=currentRotPhrases();
-  var prefix=currentRotPrefix();
-  var fixedSize=Math.min.apply(null,phrases.map(function(p){return measureRotSize(prefix+p,box);}));
-  rotLine.style.fontSize=fixedSize+'px';
+  rotLine.style.fontSize=fixedRotSize(box)+'px';
 }
 function setMode(m){
   document.body.setAttribute('data-mode',m);
